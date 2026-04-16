@@ -362,8 +362,12 @@
     <button class="btn-white" onclick="exportJSON()">📤 Export JSON</button>
     <button class="btn-white" onclick="exportCSV()">📊 Export CSV</button>
     <label class="btn-white" style="cursor:pointer;">
-      📥 Import Data
+      📥 Import JSON
       <input type="file" accept=".json" style="display:none" onchange="importJSON(this)">
+    </label>
+    <label class="btn-white" style="cursor:pointer;">
+      📥 Import CSV
+      <input type="file" accept=".csv,.txt" style="display:none" onchange="importCSV(this)">
     </label>
     <button class="btn-ghost" onclick="openSettings()" title="Settings">⚙️ Settings</button>
   </div>
@@ -505,10 +509,16 @@
       <!-- Photos -->
       <div class="section">
         <div class="sec-title">Photo Documentation</div>
-        <label class="photo-upload-label">
-          📷 Tap to upload photos
-          <input type="file" multiple accept="image/*" onchange="handlePhotos(this.files)">
-        </label>
+        <div style="display:flex;gap:10px;margin-bottom:0;">
+          <label class="photo-upload-label" style="flex:1;">
+            📁 Upload Photos
+            <input type="file" multiple accept="image/*" onchange="handlePhotos(this.files)">
+          </label>
+          <label class="photo-upload-label" style="flex:1;">
+            📷 Take Photo
+            <input type="file" accept="image/*" capture="environment" onchange="handlePhotos(this.files)">
+          </label>
+        </div>
         <div class="photo-grid" id="photo-grid"></div>
       </div>
 
@@ -737,13 +747,25 @@ function renderCards(){
       img.src=s.image; img.alt=s.name; img.className="card-img";
       card.appendChild(img);
     } else {
-      const ph=document.createElement("label");
+      const ph=document.createElement("div");
       ph.className="card-img-placeholder";
-      ph.innerHTML=`<span class="ph-icon">📷</span><p>Tap to add photo</p>`;
-      const inp=document.createElement("input"); inp.type="file"; inp.accept="image/*";
-      inp.addEventListener("change",e=>{e.stopPropagation();if(e.target.files[0])handleSculptureImage(s.id,e.target.files[0]);});
-      ph.appendChild(inp);
       ph.addEventListener("click",e=>e.stopPropagation());
+      ph.innerHTML=`<span class="ph-icon">📷</span><p style="font-size:11px;margin-bottom:4px;">Add Photo</p>`;
+      const phRow=document.createElement("div");
+      phRow.style.cssText="display:flex;gap:6px;";
+      const mkPhBtn=(capture)=>{
+        const lbl=document.createElement("label");
+        lbl.style.cssText="font-size:11px;font-weight:700;cursor:pointer;background:var(--bg-card);border:1px solid var(--border);padding:4px 9px;border-radius:6px;color:var(--text-soft);";
+        lbl.textContent=capture?"📷 Camera":"📁 Upload";
+        const inp=document.createElement("input"); inp.type="file"; inp.accept="image/*"; inp.style.display="none";
+        if(capture) inp.setAttribute("capture","environment");
+        inp.addEventListener("change",e=>{e.stopPropagation();if(e.target.files[0])handleSculptureImage(s.id,e.target.files[0]);});
+        lbl.appendChild(inp);
+        return lbl;
+      };
+      phRow.appendChild(mkPhBtn(false));
+      phRow.appendChild(mkPhBtn(true));
+      ph.appendChild(phRow);
       card.appendChild(ph);
     }
 
@@ -801,21 +823,40 @@ function renderInspectionImage(id){
     // Change photo button
     const ch=document.createElement("div");
     ch.className="insp-img-change";
-    ch.innerHTML=`<label>📷 Change Photo<input type="file" accept="image/*"></label>`;
-    ch.querySelector("input").addEventListener("change",e=>{
-      if(e.target.files[0]) handleSculptureImage(id,e.target.files[0],()=>renderInspectionImage(id));
-    });
+    ch.style.cssText="position:absolute;bottom:10px;right:12px;display:flex;gap:6px;";
+    const mkBannerBtn=(capture,label)=>{
+      const lbl=document.createElement("label");
+      lbl.style.cssText="background:rgba(0,0,0,0.58);color:white;padding:6px 13px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;";
+      lbl.textContent=label;
+      const inp=document.createElement("input"); inp.type="file"; inp.accept="image/*"; inp.style.display="none";
+      if(capture) inp.setAttribute("capture","environment");
+      inp.addEventListener("change",e=>{if(e.target.files[0]) handleSculptureImage(id,e.target.files[0],()=>renderInspectionImage(id));});
+      lbl.appendChild(inp);
+      return lbl;
+    };
+    ch.appendChild(mkBannerBtn(false,"📁 Upload"));
+    ch.appendChild(mkBannerBtn(true,"📷 Camera"));
     w.appendChild(ch);
   } else {
-    const lbl=document.createElement("label");
-    lbl.className="insp-img-placeholder";
-    lbl.innerHTML=`<span class="ph-icon">📷</span><p>Tap to add sculpture photo</p>`;
-    const inp=document.createElement("input"); inp.type="file"; inp.accept="image/*";
-    inp.addEventListener("change",e=>{
-      if(e.target.files[0]) handleSculptureImage(id,e.target.files[0],()=>renderInspectionImage(id));
-    });
-    lbl.appendChild(inp);
-    w.appendChild(lbl);
+    const phBanner=document.createElement("div");
+    phBanner.className="insp-img-placeholder";
+    phBanner.innerHTML=`<span class="ph-icon">📷</span><p style="margin-bottom:8px;">Add sculpture photo</p>`;
+    const phBannerRow=document.createElement("div");
+    phBannerRow.style.cssText="display:flex;gap:10px;";
+    const mkPlaceholderBtn=(capture,label)=>{
+      const lbl2=document.createElement("label");
+      lbl2.style.cssText="background:var(--bg-panel);color:var(--accent);border:2px solid var(--accent);padding:8px 18px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;";
+      lbl2.textContent=label;
+      const inp2=document.createElement("input"); inp2.type="file"; inp2.accept="image/*"; inp2.style.display="none";
+      if(capture) inp2.setAttribute("capture","environment");
+      inp2.addEventListener("change",e=>{if(e.target.files[0]) handleSculptureImage(id,e.target.files[0],()=>renderInspectionImage(id));});
+      lbl2.appendChild(inp2);
+      return lbl2;
+    };
+    phBannerRow.appendChild(mkPlaceholderBtn(false,"📁 Upload"));
+    phBannerRow.appendChild(mkPlaceholderBtn(true,"📷 Camera"));
+    phBanner.appendChild(phBannerRow);
+    w.appendChild(phBanner);
   }
 }
 
@@ -1183,6 +1224,97 @@ function exportCSV(){
 // ═══════════════════════════════
 //  IMPORT JSON
 // ═══════════════════════════════
+// ── Smart merge helper ──────────────────────────────────────────────────────
+// Merges incoming sculpture + inspection data into the current dataset.
+// Rules:
+//   • Match records by normalized name+artist key (case-insensitive, trimmed)
+//   • For matching sculptures: take the MOST COMPLETE version field-by-field
+//     (prefer non-empty values; for dates prefer most recent)
+//   • For inspection records: prefer the one with the more recent inspectionDate
+//   • New sculptures (no match) are always added
+//   • Nothing is ever deleted from the existing dataset
+function smartMerge(incomingSculptures, incomingInspections) {
+  let added=0, updated=0;
+
+  // Build lookup of existing sculptures by key
+  const normalize = s => `${(s.name||'').trim().toLowerCase()}||${(s.artist||'').trim().toLowerCase()}`;
+  const existingMap = {};
+  sculptures.forEach(s => { existingMap[normalize(s)] = s; });
+
+  const idMap = {}; // incoming id → local id
+
+  incomingSculptures.forEach(incoming => {
+    const key = normalize(incoming);
+    const local = existingMap[key];
+
+    if (!local) {
+      // Brand new — add it
+      const newId = genId();
+      idMap[incoming.id] = newId;
+      sculptures.push({ ...incoming, id: newId });
+      existingMap[key] = sculptures[sculptures.length-1];
+      added++;
+    } else {
+      // Existing — merge fields: take incoming value if local is empty/missing
+      idMap[incoming.id] = local.id;
+      let changed = false;
+      ['artist','location','lastInspection','image'].forEach(field => {
+        if (!local[field] && incoming[field]) {
+          local[field] = incoming[field];
+          changed = true;
+        }
+      });
+      // For lastInspection date, keep the more recent one
+      if (local.lastInspection && incoming.lastInspection) {
+        const dLocal = new Date(local.lastInspection);
+        const dIn    = new Date(incoming.lastInspection);
+        if (!isNaN(dIn) && !isNaN(dLocal) && dIn > dLocal) {
+          local.lastInspection = incoming.lastInspection;
+          changed = true;
+        }
+      }
+      if (changed) updated++;
+    }
+  });
+
+  // Merge inspections — keep the most recently dated one
+  if (incomingInspections) {
+    Object.entries(incomingInspections).forEach(([oldId, incomingInsp]) => {
+      const localId = idMap[oldId];
+      if (!localId) return;
+      const localInsp = inspections[localId];
+      if (!localInsp) {
+        inspections[localId] = incomingInsp;
+      } else {
+        // Compare dates — prefer more recent
+        const dLocal = localInsp.inspectionDate  ? new Date(localInsp.inspectionDate+'T12:00:00')  : null;
+        const dIn    = incomingInsp.inspectionDate ? new Date(incomingInsp.inspectionDate+'T12:00:00') : null;
+        let useIncoming = false;
+        if (dIn && !dLocal) useIncoming = true;
+        else if (dIn && dLocal && dIn > dLocal) useIncoming = true;
+
+        if (useIncoming) {
+          inspections[localId] = incomingInsp;
+        } else {
+          // Fill any empty fields from incoming even if we keep local
+          ['location','inspectorName','recommendations'].forEach(f => {
+            if (!localInsp[f] && incomingInsp[f]) localInsp[f] = incomingInsp[f];
+          });
+          // Merge photos — combine unique ones (by comparing first 60 chars of dataUrl)
+          if (incomingInsp.photos?.length) {
+            const existingPreviews = new Set((localInsp.photos||[]).map(p=>p.slice(0,60)));
+            incomingInsp.photos.forEach(p => {
+              if (!existingPreviews.has(p.slice(0,60))) localInsp.photos.push(p);
+            });
+          }
+        }
+      }
+    });
+  }
+
+  return { added, updated };
+}
+
 function importJSON(input){
   const file=input.files[0]; if(!file) return;
   const reader=new FileReader();
@@ -1193,52 +1325,135 @@ function importJSON(input){
         alert("❌ Invalid file. Please use a MAC Sculptfusion export (.json).");
         return;
       }
-      const replace=confirm(
-        `Found ${data.sculptures.length} sculptures in the file.\n\n`+
-        `OK = Replace all current data\nCancel = Merge (add new sculptures only)`
-      );
-      if(replace){
-        sculptures=data.sculptures;
-        inspections=data.inspections||{};
-        if(data.customOrder){ customOrder=data.customOrder; }
-        if(data.sortMode){ sortMode=data.sortMode; }
-        // sync sort buttons
-        document.querySelectorAll('.sort-btn').forEach(b=>b.classList.remove('active'));
-        const sb=document.getElementById('sort-'+sortMode);
-        if(sb) sb.classList.add('active');
-        const hint=document.getElementById('drag-hint');
-        if(hint) hint.style.opacity=sortMode==='custom'?'1':'0.3';
-      } else {
-        // Merge by name+artist key
-        const existing=new Set(sculptures.map(s=>`${s.name}||${s.artist||""}`));
-        const idMap={};
-        data.sculptures.forEach(s=>{
-          const key=`${s.name}||${s.artist||""}`;
-          if(!existing.has(key)){
-            const newId=genId();
-            idMap[s.id]=newId;
-            sculptures.push({...s,id:newId});
-          } else {
-            // find matching local id for inspection merge
-            const local=sculptures.find(x=>`${x.name}||${x.artist||""}`===key);
-            if(local) idMap[s.id]=local.id;
-          }
-        });
-        if(data.inspections){
-          Object.entries(data.inspections).forEach(([oldId,insp])=>{
-            const newId=idMap[oldId];
-            if(newId&&!inspections[newId]) inspections[newId]=insp;
-          });
-        }
+      const {added,updated} = smartMerge(data.sculptures, data.inspections||{});
+      // Restore sort preferences if present
+      if(data.sortMode){ sortMode=data.sortMode; }
+      if(data.customOrder){
+        // Append any new ids to the end of customOrder
+        customOrder=data.customOrder.filter(id=>sculptures.find(s=>s.id===id));
+        sculptures.forEach(s=>{ if(!customOrder.includes(s.id)) customOrder.push(s.id); });
       }
+      document.querySelectorAll('.sort-btn').forEach(b=>b.classList.remove('active'));
+      const sb=document.getElementById('sort-'+sortMode);
+      if(sb) sb.classList.add('active');
       renderCards();
-      alert(`✅ Import complete — ${sculptures.length} sculptures loaded.`);
+      if(currentTab==='directory') renderDirectory();
+      alert(`✅ JSON import complete\n${added} new sculpture${added!==1?'s':''} added\n${updated} existing record${updated!==1?'s':''} updated\n${sculptures.length} total in collection`);
     } catch(err){
-      alert("❌ Could not read file. Make sure it's a valid MAC Sculptfusion JSON export.");
+      alert("❌ Could not read file. Make sure it's a valid MAC Sculptfusion JSON export.\n"+err.message);
     }
   };
   reader.readAsText(file);
   input.value="";
+}
+
+// ═══════════════════════════════
+//  IMPORT CSV
+// ═══════════════════════════════
+function importCSV(input){
+  const file=input.files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const rows = parseCSV(e.target.result);
+      if(rows.length<2){ alert("❌ CSV appears empty or invalid."); return; }
+
+      const headers = rows[0].map(h=>h.trim().toLowerCase());
+      // Flexible column detection
+      const col = name => {
+        const aliases = {
+          name:    ['sculpture title','sculpture','title','name'],
+          artist:  ['artist'],
+          location:['location'],
+          date:    ['last inspection','last inspection date','date','inspection date'],
+          status:  ['maintenance status','maintenance','status'],
+          inspector:['inspector'],
+          recs:    ['recommendations','recommended actions & notes','recommended actions'],
+          comments:['comments','notes'],
+        };
+        const list = aliases[name]||[name];
+        return headers.findIndex(h=>list.some(a=>h.includes(a)));
+      };
+
+      const iName=col('name'), iArtist=col('artist'), iLoc=col('location');
+      if(iName===-1){ alert("❌ Could not find a 'Sculpture Title' or 'Title' column in the CSV."); return; }
+
+      // Build incoming sculptures from CSV rows
+      const incomingSculptures=[];
+      const incomingInspections={};
+
+      rows.slice(1).forEach(row=>{
+        if(row.every(c=>!c.trim())) return; // skip blank rows
+        const get=(i)=>i>=0?row[i]?.trim()||'':'';
+        const name=get(iName); if(!name) return;
+
+        const tempId=genId();
+        incomingSculptures.push({
+          id:             tempId,
+          name,
+          artist:         get(iArtist),
+          location:       get(iLoc),
+          lastInspection: get(col('date'))||null,
+          image:          null
+        });
+
+        // Build inspection record if there's meaningful data
+        const status   = get(col('status'));
+        const inspector= get(col('inspector'));
+        const recs     = get(col('recs')) || get(col('comments'));
+        const dateRaw  = get(col('date'));
+        let isoDate='';
+        if(dateRaw){
+          const d=new Date(dateRaw);
+          if(!isNaN(d)) isoDate=d.toISOString().split('T')[0];
+        }
+
+        if(status||inspector||recs||isoDate){
+          incomingInspections[tempId]={
+            inspectionDate: isoDate,
+            location:       get(iLoc),
+            inspectorName:  inspector,
+            maintenance:    status,
+            recommendations:recs,
+            checklist:      emptyChecklist(),
+            photos:         []
+          };
+        }
+      });
+
+      const {added,updated}=smartMerge(incomingSculptures, incomingInspections);
+      renderCards();
+      if(currentTab==='directory') renderDirectory();
+      alert(`✅ CSV import complete\n${added} new sculpture${added!==1?'s':''} added\n${updated} existing record${updated!==1?'s':''} updated\n${sculptures.length} total in collection`);
+    } catch(err){
+      alert("❌ Could not parse CSV.\n"+err.message);
+    }
+  };
+  reader.readAsText(file);
+  input.value="";
+}
+
+// Minimal RFC-4180 CSV parser
+function parseCSV(text){
+  const rows=[];
+  let row=[], field='', inQuote=false;
+  const flush=()=>{ row.push(field); field=''; };
+  for(let i=0;i<text.length;i++){
+    const c=text[i], next=text[i+1];
+    if(inQuote){
+      if(c==='"'&&next==='"'){ field+='"'; i++; }
+      else if(c==='"'){ inQuote=false; }
+      else { field+=c; }
+    } else {
+      if(c==='"'){ inQuote=true; }
+      else if(c===','){ flush(); }
+      else if(c==='\r'&&next==='\n'){ flush(); rows.push(row); row=[]; i++; }
+      else if(c==='\n'||c==='\r'){ flush(); rows.push(row); row=[]; }
+      else { field+=c; }
+    }
+  }
+  flush(); if(row.length>0&&row.some(f=>f)) rows.push(row);
+  return rows;
 }
 
 // ═══════════════════════════════

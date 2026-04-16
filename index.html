@@ -359,7 +359,8 @@
   <!-- TOP TOOLBAR -->
   <div class="toolbar" id="home-toolbar">
     <button class="btn-white" onclick="showPrintView()">📄 PDF Report</button>
-    <button class="btn-white" onclick="exportJSON()">📤 Export Data</button>
+    <button class="btn-white" onclick="exportJSON()">📤 Export JSON</button>
+    <button class="btn-white" onclick="exportCSV()">📊 Export CSV</button>
     <label class="btn-white" style="cursor:pointer;">
       📥 Import Data
       <input type="file" accept=".json" style="display:none" onchange="importJSON(this)">
@@ -1055,13 +1056,128 @@ function submitModal(){
 // ═══════════════════════════════
 //  EXPORT JSON
 // ═══════════════════════════════
-function exportJSON(){
-  const data={exportDate:new Date().toISOString(),appVersion:"1.0",sculptures,inspections,customOrder:getCustomOrder(),sortMode};
-  const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement("a");
-  a.href=url; a.download=`MAC_Sculptfusion_${new Date().toISOString().split("T")[0]}.json`;
-  a.click(); URL.revokeObjectURL(url);
+// Recompress a base64 dataURL through a canvas, returns a Promise<string>
+function recompressDataUrl(dataUrl, maxPx=500, quality=0.82) {
+  return new Promise(resolve => {
+    if (!dataUrl) { resolve(dataUrl); return; }
+    const img = new Image();
+    img.onload = () => {
+      const { naturalWidth: w, naturalHeight: h } = img;
+      let tw = w, th = h;
+      if (w > maxPx || h > maxPx) {
+        if (w >= h) { tw = maxPx; th = Math.round(h * maxPx / w); }
+        else        { th = maxPx; tw = Math.round(w * maxPx / h); }
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = tw; canvas.height = th;
+      canvas.getContext('2d').drawImage(img, 0, 0, tw, th);
+      resolve(canvas.toDataURL('image/jpeg', quality));
+    };
+    img.onerror = () => resolve(dataUrl); // fallback: keep original
+    img.src = dataUrl;
+  });
+}
+
+async function exportJSON(){
+  // Show a brief status indicator
+  const btn = event?.target;
+  const origText = btn?.textContent || '';
+  if (btn) btn.textContent = '⏳ Compressing…';
+
+  // Deep-clone and recompress all images
+  const compressedSculptures = await Promise.all(
+    sculptures.map(async s => ({
+      ...s,
+      image: s.image ? await recompressDataUrl(s.image) : null
+    }))
+  );
+
+  const compressedInspections = {};
+  for (const [id, r] of Object.entries(inspections)) {
+    compressedInspections[id] = {
+      ...r,
+      photos: r.photos
+        ? await Promise.all(r.photos.map(p => recompressDataUrl(p)))
+        : []
+    };
+  }
+
+  const data = {
+    exportDate:   new Date().toISOString(),
+    appVersion:   "1.0",
+    sculptures:   compressedSculptures,
+    inspections:  compressedInspections,
+    customOrder:  getCustomOrder(),
+    sortMode
+  };
+
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type:"application/json"});
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement("a");
+  a.href     = url;
+  a.download = `MAC_Sculptfusion_${new Date().toISOString().split("T")[0]}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+
+  if (btn) btn.textContent = origText;
+}
+
+// ═══════════════════════════════
+//  EXPORT CSV
+// ═══════════════════════════════
+function exportCSV(){
+  const esc = v => `"${String(v??'').replace(/"/g,'""')}"`;
+
+  // Checklist column headers
+  const checkHeaders = [];
+  for (const [,{label,items}] of Object.entries(CHECKLISTS)) {
+    items.forEach(item => {
+      checkHeaders.push(`${label} — ${item.q} (Rating)`);
+      checkHeaders.push(`${label} — ${item.q} (Notes)`);
+    });
+  }
+
+  const headers = [
+    'Sculpture Title','Artist','Location','Last Inspection',
+    'Maintenance Status','Inspector','Recommendations','Photo Count',
+    ...checkHeaders
+  ];
+
+  const rows = sculptures.map(s => {
+    const r = inspections[s.id];
+    const date = r?.inspectionDate
+      ? new Date(r.inspectionDate+'T12:00:00').toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'})
+      : (s.lastInspection || '');
+
+    const checkCells = [];
+    for (const [cat,{items}] of Object.entries(CHECKLISTS)) {
+      items.forEach((_,i) => {
+        checkCells.push(r?.checklist?.[cat]?.[i]?.rating || '');
+        checkCells.push(r?.checklist?.[cat]?.[i]?.notes  || '');
+      });
+    }
+
+    return [
+      s.name,
+      s.artist || '',
+      r?.location || s.location || '',
+      date,
+      r?.maintenance || '',
+      r?.inspectorName || '',
+      r?.recommendations || '',
+      String(r?.photos?.length || 0),
+      ...checkCells
+    ];
+  });
+
+  const csv = [headers, ...rows].map(row => row.map(esc).join(',')).join('\n');
+  const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = `MAC_Sculptfusion_${new Date().toISOString().split('T')[0]}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
 }
 
 // ═══════════════════════════════

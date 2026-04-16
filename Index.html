@@ -1,0 +1,1785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MAC Sculptfusion · Michigan City Public Art</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════
+   ROOT VARIABLES & RESET
+═══════════════════════════════════════════════ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#1a1a2e;--ink2:#2d2d44;
+  --slate:#4a5568;--slate2:#718096;
+  --border:#e2e8f0;--border2:#cbd5e0;
+  --bg:#f7f8fc;--card:#ffffff;
+  --accent:#2563eb;--accent2:#1d4ed8;
+  --accent-bg:#eff6ff;
+  --green:#16a34a;--green-bg:#f0fdf4;
+  --amber:#d97706;--amber-bg:#fffbeb;
+  --red:#dc2626;--red-bg:#fef2f2;
+  --red2:#b91c1c;
+  --purple:#7c3aed;--purple-bg:#f5f3ff;
+  --grey:#6b7280;--grey-bg:#f9fafb;
+  --shadow:0 1px 3px rgba(0,0,0,.08),0 4px 16px rgba(0,0,0,.06);
+  --shadow-lg:0 8px 32px rgba(0,0,0,.12),0 2px 8px rgba(0,0,0,.06);
+  --shadow-xl:0 20px 60px rgba(0,0,0,.18);
+  --r:12px;--r-sm:8px;--r-lg:18px;
+  /* status colors */
+  --s-none-bg:#f0fdf4;--s-none-fg:#16a34a;
+  --s-routine-bg:#eff6ff;--s-routine-fg:#2563eb;
+  --s-minor-bg:#fffbeb;--s-minor-fg:#d97706;
+  --s-major-bg:#fef2f2;--s-major-fg:#dc2626;
+  --s-urgent-bg:#dc2626;--s-urgent-fg:#ffffff;
+  --s-empty-bg:#f3f4f6;--s-empty-fg:#6b7280;
+}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;font-size:15px;line-height:1.5}
+
+/* ═══════════════════════════════════════════════
+   TYPOGRAPHY
+═══════════════════════════════════════════════ */
+.serif{font-family:'Fraunces',serif}
+
+/* ═══════════════════════════════════════════════
+   APP SHELL
+═══════════════════════════════════════════════ */
+#app{display:flex;flex-direction:column;min-height:100vh}
+
+/* ── TOP BAR ── */
+.topbar{background:var(--ink);color:white;padding:0 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;min-height:58px;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.25)}
+.topbar-brand{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.topbar-brand .logo{font-family:'Fraunces',serif;font-size:1.25rem;font-weight:700;letter-spacing:.3px;color:white}
+.topbar-brand .city{font-size:11px;color:rgba(255,255,255,.5);font-weight:500;letter-spacing:.5px;text-transform:uppercase}
+.topbar-actions{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+
+/* ── PROGRESS BANNER ── */
+.progress-banner{background:white;border-bottom:1px solid var(--border);padding:10px 20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.prog-stat{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--slate)}
+.prog-stat .num{font-family:'Fraunces',serif;font-size:1.1rem;font-weight:700;color:var(--ink)}
+.prog-bar-wrap{flex:1;min-width:120px;height:6px;background:var(--border);border-radius:99px;overflow:hidden}
+.prog-bar-fill{height:100%;background:linear-gradient(90deg,var(--green),var(--accent));border-radius:99px;transition:width .4s ease}
+.prog-urgent{color:var(--red);font-weight:700;font-size:13px}
+
+/* ── MAIN CONTENT ── */
+.main{flex:1;max-width:1100px;margin:0 auto;width:100%;padding:22px 18px 60px}
+
+/* ── HOME CONTROLS ── */
+.home-controls{display:flex;align-items:center;gap:10px;margin-bottom:18px;flex-wrap:wrap}
+.search-wrap{flex:1;min-width:180px;position:relative}
+.search-wrap input{width:100%;padding:9px 14px 9px 38px;border:2px solid var(--border);border-radius:var(--r-sm);font-size:14px;font-family:inherit;background:white;transition:border-color .15s;color:var(--ink)}
+.search-wrap input:focus{outline:none;border-color:var(--accent)}
+.search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);opacity:.4;font-size:15px;pointer-events:none}
+.filter-wrap{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+
+/* ── SORT BAR ── */
+.sort-bar{display:flex;align-items:center;gap:7px;margin-bottom:16px;flex-wrap:wrap}
+.sort-label{font-size:11px;font-weight:700;color:var(--slate2);text-transform:uppercase;letter-spacing:.8px}
+
+/* ── CARD GRID ── */
+.card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:16px}
+
+/* ── SCULPTURE CARD ── */
+.sculpture-card{background:var(--card);border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden;cursor:pointer;position:relative;transition:transform .18s,box-shadow .18s;border:2px solid transparent}
+.sculpture-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg)}
+.sculpture-card.manage-mode{cursor:default}
+.sculpture-card.manage-mode:hover{transform:none;box-shadow:var(--shadow)}
+/* status border on card */
+.sculpture-card.status-none    {border-color:var(--green)}
+.sculpture-card.status-routine {border-color:var(--accent)}
+.sculpture-card.status-minor   {border-color:var(--amber)}
+.sculpture-card.status-major   {border-color:var(--red)}
+.sculpture-card.status-urgent  {border-color:var(--red);box-shadow:0 0 0 3px rgba(220,38,38,.15),var(--shadow)}
+.sculpture-card.status-decommissioned{opacity:.55;border-color:var(--border2);border-style:dashed}
+/* drag-over highlight kept for visual feedback on other interactions */
+.sculpture-card.drag-over{outline:3px dashed var(--accent);outline-offset:2px}
+
+.card-img-wrap{position:relative;overflow:hidden;height:148px}
+.card-img-wrap img{width:100%;height:148px;object-fit:cover;display:block;transition:transform .25s}
+.sculpture-card:hover .card-img-wrap img{transform:scale(1.05)}
+.card-img-overlay{position:absolute;inset:0;background:linear-gradient(transparent 45%,rgba(0,0,0,.6));display:flex;align-items:flex-end;justify-content:space-between;padding:8px;opacity:0;transition:opacity .2s;pointer-events:none}
+.sculpture-card:hover .card-img-overlay{opacity:1}
+.card-view-pill{font-size:11px;font-weight:700;color:white;background:rgba(37,99,235,.88);border:none;border-radius:5px;padding:4px 9px;pointer-events:all;cursor:pointer;font-family:inherit}
+.card-photo-count{font-size:10px;color:rgba(255,255,255,.85);font-weight:600;background:rgba(0,0,0,.45);padding:3px 7px;border-radius:5px}
+
+.card-img-placeholder{width:100%;height:148px;background:linear-gradient(135deg,#eef0f8,#dde0f0);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer;transition:background .15s}
+.card-img-placeholder:hover{background:linear-gradient(135deg,#e5e8f5,#d4d8eb)}
+.card-img-placeholder .ph-icon{font-size:26px;opacity:.35}
+.card-img-placeholder p{font-size:11px;font-weight:600;color:#999}
+.card-img-placeholder input{display:none}
+
+/* status stripe at top of card */
+.card-stripe{height:3px;width:100%}
+
+.card-body{padding:10px 12px 12px}
+.card-name{font-size:13.5px;font-weight:700;color:var(--ink);margin-bottom:1px;display:flex;align-items:center;gap:4px;flex-wrap:wrap}
+.card-artist{font-size:11.5px;color:var(--accent);font-weight:600;font-style:italic;margin-bottom:3px}
+.card-loc{font-size:10.5px;color:var(--slate2);margin-bottom:4px;line-height:1.35}
+.card-footer{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:4px}
+.card-date{font-size:10px;color:var(--slate2)}
+.card-date strong{color:var(--accent);font-weight:700}
+
+.del-btn{position:absolute;top:8px;right:8px;background:rgba(220,38,38,.88);color:white;border:none;border-radius:50%;width:26px;height:26px;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:10;transition:background .15s}
+.del-btn:hover{background:var(--red2)}
+.decom-badge-card{position:absolute;top:8px;left:8px;background:rgba(0,0,0,.6);color:white;font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;text-transform:uppercase;letter-spacing:.5px}
+
+.add-card{background:var(--card);border-radius:var(--r);border:2px dashed var(--border2);display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:220px;cursor:pointer;transition:border-color .15s,background .15s;color:var(--slate2)}
+.add-card:hover{border-color:var(--accent);background:var(--accent-bg);color:var(--accent)}
+.add-card .plus{font-size:38px;line-height:1;margin-bottom:8px;opacity:.5}
+.add-card p{font-size:13px;font-weight:600}
+
+/* ── BADGES ── */
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
+.badge-none    {background:var(--s-none-bg);   color:var(--s-none-fg)}
+.badge-routine {background:var(--s-routine-bg);color:var(--s-routine-fg)}
+.badge-minor   {background:var(--s-minor-bg);  color:var(--s-minor-fg)}
+.badge-major   {background:var(--s-major-bg);  color:var(--s-major-fg)}
+.badge-urgent  {background:var(--s-urgent-bg); color:var(--s-urgent-fg);animation:urgentPulse 2s ease-in-out infinite}
+.badge-empty   {background:var(--s-empty-bg);  color:var(--s-empty-fg)}
+.badge-decom   {background:#1f2937;color:#9ca3af}
+@keyframes urgentPulse{0%,100%{box-shadow:0 0 0 0 rgba(220,38,38,.4)}50%{box-shadow:0 0 0 4px rgba(220,38,38,.0)}}
+
+/* ── RENAME ── */
+.name-edit-row{display:flex;gap:6px;margin-bottom:3px}
+.name-edit-row input{flex:1;padding:5px 9px;font-size:13px;border:2px solid var(--accent);border-radius:6px;font-family:inherit}
+.btn-save-name{padding:5px 11px;background:var(--accent);color:white;border:none;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;font-family:inherit}
+.rename-btn{background:none;border:none;cursor:pointer;font-size:11px;padding:0;opacity:.35;flex-shrink:0}
+.rename-btn:hover{opacity:1}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;gap:5px;padding:8px 14px;border-radius:var(--r-sm);font-size:13px;font-weight:600;cursor:pointer;border:2px solid transparent;font-family:inherit;transition:all .15s;white-space:nowrap}
+.btn-primary{background:var(--accent);color:white;border-color:var(--accent)}
+.btn-primary:hover{background:var(--accent2);border-color:var(--accent2)}
+.btn-secondary{background:var(--grey-bg);color:var(--slate);border-color:var(--border)}
+.btn-secondary:hover{background:var(--border);color:var(--ink)}
+.btn-danger{background:var(--red-bg);color:var(--red);border-color:var(--red)}
+.btn-danger:hover{background:var(--red);color:white}
+.btn-dark{background:var(--ink2);color:white;border-color:var(--ink2)}
+.btn-dark:hover{background:var(--ink)}
+.btn-sm{padding:6px 11px;font-size:12px}
+.btn-ghost-dark{background:rgba(255,255,255,.12);color:white;border-color:rgba(255,255,255,.35)}
+.btn-ghost-dark:hover{background:rgba(255,255,255,.22)}
+.btn-ghost-dark.active{background:white;color:var(--ink);border-color:white}
+.sort-btn{padding:6px 13px;border:2px solid var(--border);border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;background:white;color:var(--slate);font-family:inherit;transition:all .15s}
+.sort-btn:hover{border-color:var(--accent);color:var(--accent)}
+.sort-btn.active{background:var(--accent);border-color:var(--accent);color:white}
+.filter-btn{padding:6px 12px;border:2px solid var(--border);border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;background:white;color:var(--slate);font-family:inherit;transition:all .15s}
+.filter-btn:hover{border-color:var(--accent)}
+.filter-btn.active{border-color:var(--accent);color:var(--accent);background:var(--accent-bg)}
+
+/* ── INSPECTION SCREEN ── */
+.insp-header{display:flex;align-items:center;gap:12px;margin-bottom:18px;flex-wrap:wrap}
+.insp-header .back-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;background:white;border:2px solid var(--border);border-radius:var(--r-sm);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s;color:var(--ink)}
+.insp-header .back-btn:hover{border-color:var(--accent);color:var(--accent)}
+.insp-title-wrap{flex:1}
+.insp-title-wrap h2{font-family:'Fraunces',serif;font-size:1.4rem;font-weight:700;color:var(--ink)}
+.insp-title-wrap p{font-size:12px;color:var(--slate2)}
+
+/* auto-save toast */
+.autosave-toast{position:fixed;bottom:20px;right:20px;background:var(--ink);color:white;padding:10px 16px;border-radius:var(--r-sm);font-size:13px;font-weight:600;z-index:999;opacity:0;transform:translateY(10px);transition:opacity .3s,transform .3s;pointer-events:none}
+.autosave-toast.show{opacity:1;transform:translateY(0)}
+
+.main-card{background:var(--card);border-radius:var(--r-lg);box-shadow:var(--shadow-lg);overflow:hidden}
+
+/* inspection image banner */
+#insp-img-wrapper{position:relative}
+.insp-img-banner{width:100%;height:210px;object-fit:cover;display:block;cursor:zoom-in}
+.insp-img-placeholder{width:100%;height:180px;background:linear-gradient(135deg,#eef0f8,#dde0f0);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px}
+.insp-img-placeholder .ph-icon{font-size:36px;opacity:.3}
+.insp-img-placeholder p{font-size:13px;font-weight:600;color:#aaa}
+.insp-img-placeholder input{display:none}
+.insp-img-controls{position:absolute;bottom:10px;right:12px;display:flex;gap:6px}
+.insp-img-controls label{background:rgba(0,0,0,.6);color:white;padding:5px 11px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:4px}
+.insp-img-controls input{display:none}
+
+/* Completion progress bar on inspection */
+.insp-progress-bar{background:linear-gradient(90deg,var(--border),var(--border));height:4px;position:relative;overflow:hidden}
+.insp-progress-fill{position:absolute;left:0;top:0;height:100%;background:linear-gradient(90deg,var(--green),var(--accent));transition:width .3s ease}
+.insp-progress-label{display:flex;justify-content:space-between;align-items:center;padding:7px 22px 0;font-size:11px;color:var(--slate2);font-weight:600}
+
+.section{padding:18px 22px;border-bottom:1px solid #f0f2f8}
+.section:last-child{border-bottom:none}
+.sec-header{display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;margin-bottom:0}
+.sec-header.open{margin-bottom:14px}
+.sec-title{font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:1.2px;display:flex;align-items:center;gap:6px}
+.sec-toggle{font-size:14px;color:var(--slate2);transition:transform .2s}
+.sec-toggle.open{transform:rotate(180deg)}
+.sec-body{overflow:hidden;transition:max-height .25s ease}
+.sec-body.collapsed{max-height:0!important}
+
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+@media(max-width:580px){.grid-2,.grid-3{grid-template-columns:1fr}}
+
+label.field-label{display:block;font-size:11px;font-weight:700;color:var(--slate);margin-bottom:4px;text-transform:uppercase;letter-spacing:.4px}
+input[type=text],input[type=date],textarea,select{
+  width:100%;padding:9px 12px;border:2px solid var(--border);
+  border-radius:var(--r-sm);font-size:14px;font-family:inherit;color:var(--ink);
+  transition:border-color .15s;background:white}
+input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent)}
+textarea{resize:vertical;min-height:75px}
+input[readonly]{background:#f9fafb}
+
+/* ── CHECKLIST ITEMS ── */
+.check-item{background:#fafbfd;border:2px solid var(--border);border-radius:10px;padding:12px;margin-bottom:8px;transition:border-color .15s}
+.check-item.answered{border-color:var(--accent);background:var(--accent-bg)}
+.check-item.answered-warn{border-color:var(--amber);background:var(--amber-bg)}
+.check-item.answered-crit{border-color:var(--red);background:var(--red-bg)}
+.check-q{font-size:13.5px;font-weight:600;color:var(--ink);margin-bottom:9px}
+.rating-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:7px}
+.r-btn{flex:1 1 auto;min-width:55px;padding:8px 5px;border:2px solid var(--border);border-radius:7px;cursor:pointer;font-weight:600;font-size:11.5px;background:white;color:var(--slate);font-family:inherit;transition:all .15s;text-align:center}
+.r-btn:hover{border-color:var(--accent);color:var(--accent)}
+.r-btn.sel-good{background:var(--green-bg);border-color:var(--green);color:var(--green)}
+.r-btn.sel-warn{background:var(--amber-bg);border-color:var(--amber);color:var(--amber)}
+.r-btn.sel-crit{background:var(--red-bg);border-color:var(--red);color:var(--red)}
+.r-btn.sel-urgent{background:var(--red);border-color:var(--red);color:white;animation:urgentPulse 2s ease-in-out infinite}
+.notes-input{font-size:12.5px;padding:7px 10px;min-height:unset}
+.notes-toggle{font-size:11px;color:var(--accent);cursor:pointer;font-weight:600;background:none;border:none;font-family:inherit;padding:0;margin-bottom:5px}
+.notes-toggle:hover{text-decoration:underline}
+
+/* ── OVERALL ASSESSMENT ── */
+.condition-score-row{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.score-btn{flex:1;min-width:50px;padding:10px 5px;border:2px solid var(--border);border-radius:8px;cursor:pointer;font-weight:700;font-size:12px;background:white;color:var(--slate);font-family:inherit;transition:all .15s;text-align:center}
+.score-btn:hover{border-color:var(--accent)}
+.score-btn.sel-1{background:#f0fdf4;border-color:#16a34a;color:#16a34a}
+.score-btn.sel-2{background:#f7fee7;border-color:#65a30d;color:#65a30d}
+.score-btn.sel-3{background:#fffbeb;border-color:#d97706;color:#d97706}
+.score-btn.sel-4{background:#fef2f2;border-color:#dc2626;color:#dc2626}
+.score-btn.sel-5{background:#dc2626;border-color:#dc2626;color:white}
+
+.maint-row{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:16px}
+.maint-btn{flex:1 1 auto;min-width:70px;padding:9px 7px;border:2px solid var(--border);border-radius:8px;cursor:pointer;font-weight:600;font-size:12px;background:white;color:var(--slate);font-family:inherit;transition:all .15s;text-align:center}
+.maint-btn:hover{border-color:var(--accent)}
+.maint-btn.sel-none{background:var(--green-bg);border-color:var(--green);color:var(--green)}
+.maint-btn.sel-routine{background:var(--accent-bg);border-color:var(--accent);color:var(--accent)}
+.maint-btn.sel-minor{background:var(--amber-bg);border-color:var(--amber);color:var(--amber)}
+.maint-btn.sel-major{background:var(--red-bg);border-color:var(--red);color:var(--red)}
+.maint-btn.sel-urgent{background:var(--red);border-color:var(--red);color:white}
+
+/* ── PHOTO SECTION ── */
+.photo-btn-row{display:flex;gap:9px;flex-wrap:wrap}
+.photo-btn-camera{flex:1;min-width:130px;display:flex;align-items:center;justify-content:center;padding:13px 8px;border:2px dashed var(--green);border-radius:10px;cursor:pointer;background:var(--green-bg);font-size:13px;color:var(--green);font-weight:600;gap:6px;transition:background .15s}
+.photo-btn-camera:hover{background:#dcfce7}
+.photo-btn-camera input{display:none}
+.photo-btn-gallery{flex:1;min-width:130px;display:flex;align-items:center;justify-content:center;padding:13px 8px;border:2px dashed var(--accent);border-radius:10px;cursor:pointer;background:var(--accent-bg);font-size:13px;color:var(--accent);font-weight:600;gap:6px;transition:background .15s}
+.photo-btn-gallery:hover{background:#dbeafe}
+.photo-btn-gallery input{display:none}
+.photo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(95px,1fr));gap:8px;margin-top:12px}
+.photo-item{position:relative;border-radius:8px;overflow:hidden;cursor:pointer;aspect-ratio:1}
+.photo-item img{width:100%;height:100%;object-fit:cover;display:block;transition:opacity .15s}
+.photo-item:hover img{opacity:.82}
+.photo-rm{position:absolute;top:3px;right:3px;background:rgba(220,38,38,.9);color:white;border:none;border-radius:50%;width:22px;height:22px;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;line-height:1}
+.photo-num{position:absolute;bottom:4px;left:5px;background:rgba(0,0,0,.55);color:white;font-size:9px;font-weight:700;padding:2px 5px;border-radius:4px}
+
+.action-bar{padding:18px 22px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;background:#fafbfd;border-top:1px solid var(--border)}
+
+/* ── CARD DETAIL POPUP ── */
+.cd-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:400;display:flex;align-items:center;justify-content:center;padding:14px}
+.cd-box{background:white;border-radius:var(--r-lg);width:100%;max-width:570px;max-height:94vh;overflow-y:auto;box-shadow:var(--shadow-xl)}
+.cd-hero{position:relative}
+.cd-hero-img{width:100%;height:240px;object-fit:cover;display:block;border-radius:var(--r-lg) var(--r-lg) 0 0;cursor:zoom-in}
+.cd-hero-placeholder{width:100%;height:160px;background:linear-gradient(135deg,#eef0f8,#dde0f0);border-radius:var(--r-lg) var(--r-lg) 0 0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px}
+.cd-hero-placeholder .ph-icon{font-size:32px;opacity:.3}
+.cd-hero-placeholder p{font-size:12px;color:#bbb;font-weight:600}
+.cd-hero-controls{position:absolute;bottom:10px;right:10px;display:flex;gap:6px}
+.cd-hero-controls label{background:rgba(0,0,0,.62);color:white;padding:5px 10px;border-radius:7px;font-size:11px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:4px}
+.cd-hero-controls input{display:none}
+.cd-body{padding:16px 20px 20px}
+.cd-title{font-family:'Fraunces',serif;font-size:1.25rem;font-weight:700;color:var(--ink);margin-bottom:2px}
+.cd-artist{font-size:12.5px;color:var(--accent);font-weight:600;font-style:italic;margin-bottom:9px}
+.cd-meta{font-size:12px;color:var(--slate2);line-height:1.9;margin-bottom:12px}
+.cd-score-display{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;margin-bottom:10px}
+.cd-sec-label{font-size:10.5px;font-weight:700;color:var(--slate);text-transform:uppercase;letter-spacing:.7px;margin:12px 0 7px}
+.cd-extra-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(82px,1fr));gap:6px}
+.cd-extra-grid img{width:100%;height:72px;object-fit:cover;border-radius:6px;border:1px solid var(--border);cursor:zoom-in;transition:transform .15s}
+.cd-extra-grid img:hover{transform:scale(1.05)}
+.cd-no-photos{font-size:12px;color:#ccc;font-style:italic}
+.cd-actions{display:flex;gap:9px;margin-top:16px;flex-wrap:wrap}
+.cd-history{margin-top:10px}
+.cd-hist-item{background:#f8fafc;border:1px solid var(--border);border-radius:8px;padding:9px 12px;margin-bottom:6px;font-size:12px}
+.cd-hist-item .hist-date{font-weight:700;color:var(--ink)}
+.cd-hist-item .hist-meta{color:var(--slate2);margin-top:2px}
+
+/* ── LIGHTBOX ── */
+.lb-overlay{position:fixed;inset:0;background:rgba(0,0,0,.94);z-index:600;display:flex;align-items:center;justify-content:center;cursor:zoom-out}
+.lb-overlay img{max-width:96vw;max-height:92vh;object-fit:contain;border-radius:5px}
+.lb-close{position:absolute;top:14px;right:20px;color:rgba(255,255,255,.75);font-size:34px;cursor:pointer;line-height:1;font-weight:300;transition:color .15s}
+.lb-close:hover{color:white}
+
+/* ── MODALS ── */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:500;display:flex;align-items:center;justify-content:center;padding:18px}
+.modal{background:white;border-radius:var(--r-lg);padding:26px;width:100%;max-width:460px;box-shadow:var(--shadow-xl);max-height:92vh;overflow-y:auto}
+.modal h2{font-family:'Fraunces',serif;font-size:1.3rem;color:var(--ink);margin-bottom:16px}
+.modal-fields{display:flex;flex-direction:column;gap:11px}
+.modal-actions{display:flex;gap:9px;justify-content:flex-end;margin-top:16px;flex-wrap:wrap}
+
+/* merge modal */
+.merge-item{background:#f8fafc;border:1px solid var(--border);border-radius:9px;padding:12px;margin-bottom:10px}
+.merge-item h4{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:3px}
+.merge-item .merge-detail{font-size:11.5px;color:var(--slate2);margin-bottom:8px}
+.merge-choice{display:flex;gap:7px;flex-wrap:wrap}
+.merge-radio{display:none}
+.merge-label{padding:6px 12px;border:2px solid var(--border);border-radius:7px;font-size:11.5px;font-weight:600;cursor:pointer;color:var(--slate);transition:all .15s;white-space:nowrap}
+.merge-radio:checked+.merge-label{background:var(--accent);border-color:var(--accent);color:white}
+.merge-log-wrap{background:#f0fdf4;border:1px solid var(--green);border-radius:8px;padding:12px;font-size:12px;max-height:180px;overflow-y:auto}
+.merge-log-item{padding:3px 0;border-bottom:1px solid rgba(22,163,74,.15);color:var(--slate2)}
+.merge-log-item:last-child{border-bottom:none}
+.merge-log-item b{color:var(--ink)}
+
+/* ── LEGEND TOOLTIP ── */
+.legend-btn{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;background:var(--border);border:none;font-size:12px;cursor:pointer;color:var(--slate);font-weight:700;font-family:inherit;flex-shrink:0}
+.legend-popup{position:fixed;z-index:800;background:white;border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow-lg);padding:14px;width:260px;font-size:12px}
+.legend-popup h4{font-size:12px;font-weight:700;color:var(--ink);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px}
+.legend-row{display:flex;align-items:flex-start;gap:8px;margin-bottom:6px}
+.legend-row:last-child{margin-bottom:0}
+.legend-term{font-weight:700;min-width:80px;color:var(--slate)}
+.legend-def{color:var(--slate2);line-height:1.4}
+
+/* ── INSPECTOR MEMORY ── */
+.inspector-remembered{font-size:11px;color:var(--accent);margin-top:3px;cursor:pointer}
+
+/* ── STATUS LABEL BAR ── */
+.status-legend-bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px;padding:10px 14px;background:white;border-radius:var(--r-sm);border:1px solid var(--border);font-size:11px;color:var(--slate2)}
+.status-legend-bar strong{font-weight:700;color:var(--ink);font-size:11px}
+
+/* ═══════════════════════════════════════════════
+   PRINT VIEW  — compact, paper-saving
+═══════════════════════════════════════════════ */
+#print-view{display:none;font-family:'DM Sans',sans-serif;padding:18px 22px;color:#111;background:white;min-height:100vh}
+.print-toolbar{display:flex;gap:8px;justify-content:flex-end;margin-bottom:16px;flex-wrap:wrap}
+.print-options{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px;padding:10px 12px;background:#f8fafc;border:1px solid var(--border);border-radius:8px;font-size:12px}
+.print-options label{display:flex;align-items:center;gap:5px;cursor:pointer;font-weight:600}
+.print-hdr{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:14px;border-bottom:2px solid #2563eb;padding-bottom:10px}
+.print-hdr h1{font-family:'Fraunces',serif;font-size:1.3rem;color:#111}
+.print-hdr p{font-size:11px;color:#666;margin-top:3px}
+.print-section-title{font-size:10px;font-weight:700;color:#2563eb;text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid #2563eb;padding-bottom:4px;margin-bottom:10px;margin-top:14px}
+/* Compact summary table */
+.print-summary{width:100%;border-collapse:collapse;margin-bottom:16px;font-size:9.5px}
+.print-summary th{background:#2563eb;color:white;padding:5px 7px;text-align:left;font-size:9px;font-weight:700}
+.print-summary td{padding:5px 7px;border-bottom:1px solid #eee}
+.print-summary tr:nth-child(even) td{background:#f9f9ff}
+/* Two-column detail layout */
+.print-detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:start}
+.print-detail{border:1px solid #ddd;border-radius:6px;overflow:hidden;font-size:9px;break-inside:avoid}
+.print-detail.full-width{grid-column:1/-1}
+.print-detail-hdr{background:#f5f5ff;padding:6px 9px;border-bottom:1px solid #ddd;display:flex;justify-content:space-between;align-items:flex-start;gap:5px}
+.print-detail-hdr strong{font-size:10px;font-weight:700}
+.print-detail-hdr .meta{font-size:8.5px;color:#666;text-align:right;line-height:1.5}
+.print-hero{width:100%;max-height:100px;object-fit:cover;display:block;float:right;margin:0 0 5px 8px;border-radius:3px;max-width:110px}
+/* Compact checklist — only answered items */
+.print-table{width:100%;border-collapse:collapse;font-size:8.5px;clear:both}
+.print-table th{background:#eee;padding:4px 6px;text-align:left;font-size:8px;text-transform:uppercase}
+.print-table td{padding:3px 6px;border-bottom:1px solid #f0f0f0}
+.print-cat-row td{background:#eff6ff;font-weight:700;font-size:7.5px;color:#2563eb;text-transform:uppercase}
+.print-photos{padding:5px 8px;display:flex;flex-wrap:wrap;gap:4px}
+.print-photos img{width:55px;height:41px;object-fit:cover;border-radius:2px;border:1px solid #ddd}
+.print-recs{padding:5px 8px 7px;font-size:9px;color:#444;border-top:1px solid #eee}
+.print-footer{margin-top:16px;text-align:center;font-size:9px;color:#aaa;border-top:1px solid #eee;padding-top:8px}
+.print-score-badge{display:inline-block;padding:1px 6px;border-radius:10px;font-size:8px;font-weight:700;text-transform:uppercase}
+
+@media print{
+  body>.page,#app{display:none!important}
+  .overlay,.cd-overlay,.lb-overlay{display:none!important}
+  #print-view{display:block!important}
+  .no-print{display:none!important}
+  .print-detail{break-inside:avoid}
+  /* Summary section — landscape */
+  .print-summary-section{page-break-after:always}
+  @page summary-page{size:letter landscape;margin:.4in}
+  @page detail-page{size:letter portrait;margin:.45in}
+  /* Apply landscape to first page (summary), portrait to rest */
+  @page{size:letter portrait;margin:.45in}
+  @page:first{size:letter landscape;margin:.4in}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════ APP SHELL ═══════ -->
+<div id="app">
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="topbar-brand">
+    <div>
+      <div class="logo">🎨 MAC Sculptfusion</div>
+      <div class="city">Michigan City Public Art</div>
+    </div>
+  </div>
+  <div class="topbar-actions" id="home-toolbar">
+    <button class="btn btn-ghost-dark btn-sm" onclick="showPrintView()">📄 View Report</button>
+    <button class="btn btn-ghost-dark btn-sm" onclick="downloadPDF()">⬇️ Download PDF</button>
+    <button class="btn btn-ghost-dark btn-sm" onclick="exportCSV()">📊 Export Data Only</button>
+    <button class="btn btn-ghost-dark btn-sm" onclick="exportJSON()">📤 Export With Photos</button>
+    <label class="btn btn-ghost-dark btn-sm" style="cursor:pointer">
+      📥 Import
+      <input type="file" accept=".json" style="display:none" onchange="importJSON(this)">
+    </label>
+    <button class="btn btn-ghost-dark btn-sm" id="manage-btn" onclick="toggleManage()">✏️ Manage</button>
+  </div>
+</div>
+
+<!-- PROGRESS BANNER -->
+<div class="progress-banner" id="progress-banner"></div>
+
+<!-- MAIN -->
+<div class="main" id="app-main">
+
+  <!-- HOME SCREEN -->
+  <div id="home-screen">
+    <div class="home-controls">
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="search-input" placeholder="Search by name, artist, or location…" oninput="renderCards()">
+      </div>
+      <div class="filter-wrap">
+        <span style="font-size:11px;font-weight:700;color:var(--slate2);text-transform:uppercase;letter-spacing:.5px">Filter:</span>
+        <button class="filter-btn active" data-filter="all" onclick="setFilter('all',this)">All</button>
+        <button class="filter-btn" data-filter="uninspected" onclick="setFilter('uninspected',this)">Not Inspected</button>
+        <button class="filter-btn" data-filter="urgent" onclick="setFilter('urgent',this)">⚠ Urgent</button>
+        <button class="filter-btn" data-filter="major" onclick="setFilter('major',this)">Major</button>
+      </div>
+    </div>
+
+    <div class="sort-bar">
+      <span class="sort-label">Sort:</span>
+      <button class="sort-btn active" id="sort-title"  onclick="setSort('title')">A–Z Name</button>
+      <button class="sort-btn" id="sort-artist" onclick="setSort('artist')">A–Z Artist</button>
+      <button class="sort-btn" id="sort-status" onclick="setSort('status')">By Status</button>
+    </div>
+
+    <div class="status-legend-bar">
+      <strong>Status key:</strong>
+      <span class="badge badge-none">None</span> Good condition &nbsp;
+      <span class="badge badge-routine">Routine</span> Cleaning needed &nbsp;
+      <span class="badge badge-minor">Minor</span> Small repair &nbsp;
+      <span class="badge badge-major">Major</span> Significant repair &nbsp;
+      <span class="badge badge-urgent">Urgent</span> Immediate action
+      <button class="legend-btn" onclick="showLegend(this)" title="Rating guide">?</button>
+    </div>
+
+    <div class="card-grid" id="card-grid"></div>
+  </div>
+
+  <!-- INSPECTION SCREEN -->
+  <div id="inspection-screen" style="display:none">
+    <div class="insp-header">
+      <button class="back-btn" onclick="goHome()">← Back</button>
+      <div class="insp-title-wrap">
+        <h2 id="insp-title">Sculpture</h2>
+        <p id="insp-subtitle">MAC Sculptfusion Inspection</p>
+      </div>
+    </div>
+
+    <div class="main-card">
+      <div id="insp-img-wrapper"></div>
+      <div class="insp-progress-label">
+        <span id="prog-label">Checklist progress</span>
+        <span id="prog-count" style="font-weight:700;color:var(--accent)"></span>
+      </div>
+      <div class="insp-progress-bar"><div class="insp-progress-fill" id="prog-fill" style="width:0%"></div></div>
+
+      <!-- Details -->
+      <div class="section" id="sec-details">
+        <div class="sec-header open" onclick="toggleSection('sec-details')">
+          <div class="sec-title">📋 Inspection Details</div>
+          <span class="sec-toggle open">▾</span>
+        </div>
+        <div class="sec-body" id="body-sec-details">
+          <div class="grid-3" style="margin-bottom:11px">
+            <div><label class="field-label">Sculpture</label><input type="text" id="f-name" readonly></div>
+            <div><label class="field-label">Artist</label><input type="text" id="f-artist" readonly></div>
+            <div><label class="field-label">Date</label><input type="date" id="f-date" oninput="autoSave()"></div>
+          </div>
+          <div class="grid-2" style="margin-bottom:11px">
+            <div><label class="field-label">Location</label><input type="text" id="f-location" placeholder="e.g., City Hall Plaza" oninput="autoSave()"></div>
+            <div>
+              <label class="field-label">Inspector</label>
+              <input type="text" id="f-inspector" placeholder="Your name" oninput="onInspectorType()">
+              <div id="inspector-hint" class="inspector-remembered" style="display:none"></div>
+            </div>
+          </div>
+          <div class="grid-2">
+            <div>
+              <label class="field-label">Weather Conditions</label>
+              <select id="f-weather" onchange="autoSave()">
+                <option value="">— Select —</option>
+                <option>Clear / Sunny</option>
+                <option>Partly Cloudy</option>
+                <option>Overcast</option>
+                <option>Rainy / Wet</option>
+                <option>Snow / Ice</option>
+                <option>Hot (&gt;85°F)</option>
+              </select>
+            </div>
+            <div>
+              <label class="field-label">Sculpture Status</label>
+              <select id="f-status-flag" onchange="autoSave()">
+                <option value="active">Active / On Display</option>
+                <option value="decommissioned">Decommissioned / Removed</option>
+                <option value="temporary">Temporary / Seasonal</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Checklists injected here -->
+      <div id="checklist-sections"></div>
+
+      <!-- Photos -->
+      <div class="section" id="sec-photos">
+        <div class="sec-header open" onclick="toggleSection('sec-photos')">
+          <div class="sec-title">📸 Photo Documentation</div>
+          <span class="sec-toggle open">▾</span>
+        </div>
+        <div class="sec-body" id="body-sec-photos">
+          <div class="photo-btn-row">
+            <label class="photo-btn-camera">📷 Take Photo<input type="file" accept="image/*" capture="environment" onchange="handlePhotos(this.files)"></label>
+            <label class="photo-btn-gallery">🖼️ From Gallery<input type="file" multiple accept="image/*" onchange="handlePhotos(this.files)"></label>
+          </div>
+          <div class="photo-grid" id="photo-grid"></div>
+        </div>
+      </div>
+
+      <!-- Overall Assessment -->
+      <div class="section" id="sec-assessment">
+        <div class="sec-header open" onclick="toggleSection('sec-assessment')">
+          <div class="sec-title">📊 Overall Assessment</div>
+          <span class="sec-toggle open">▾</span>
+        </div>
+        <div class="sec-body" id="body-sec-assessment">
+          <label class="field-label">Overall Condition Score
+            <button class="legend-btn" style="margin-left:6px" onclick="showScoreLegend(this)" title="Score guide">?</button>
+          </label>
+          <div class="condition-score-row" id="score-row"></div>
+          <label class="field-label">Maintenance Required</label>
+          <div class="maint-row" id="maint-row"></div>
+          <label class="field-label">Recommended Actions &amp; Notes</label>
+          <textarea id="f-recommendations" placeholder="Describe maintenance needs, observations, or follow-up actions…" oninput="autoSave()"></textarea>
+        </div>
+      </div>
+
+      <div class="action-bar">
+        <button class="btn btn-primary" onclick="saveInspection()">💾 Save Report</button>
+        <button class="btn btn-secondary" onclick="clearForm()">🔄 Clear Form</button>
+        <button class="btn btn-secondary" onclick="viewHistory()">🕒 History</button>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /main -->
+</div><!-- /app -->
+
+<!-- ═══════ PRINT VIEW ═══════ -->
+<div id="print-view">
+  <div class="print-toolbar no-print">
+    <div class="print-options">
+      <label><input type="checkbox" id="opt-inspected-only" checked> Inspected only</label>
+      <label><input type="checkbox" id="opt-issues-only"> Issues only (Major/Urgent)</label>
+      <label><input type="checkbox" id="opt-skip-good" checked> Skip "Good/None" rows</label>
+      <label><input type="checkbox" id="opt-no-photos"> No photos</label>
+      <button class="btn btn-secondary btn-sm" onclick="buildAndShowPrint()">↺ Refresh Preview</button>
+    </div>
+    <button class="btn btn-primary" onclick="downloadPDF()">⬇️ Download PDF</button>
+    <button class="btn btn-secondary" onclick="window.print()">🖨️ Print</button>
+    <button class="btn btn-secondary" onclick="hidePrintView()">← Back</button>
+  </div>
+  <div id="print-content"></div>
+</div>
+
+<!-- ═══════ CARD DETAIL POPUP ═══════ -->
+<div class="cd-overlay" id="cd-overlay" style="display:none" onclick="if(event.target===this)closeCardDetail()">
+  <div class="cd-box" onclick="event.stopPropagation()">
+    <div class="cd-hero" id="cd-hero"></div>
+    <div class="cd-body">
+      <div class="cd-title"  id="cd-title"></div>
+      <div class="cd-artist" id="cd-artist"></div>
+      <div id="cd-score-wrap"></div>
+      <div class="cd-meta"   id="cd-meta"></div>
+      <div id="cd-extra-wrap">
+        <div class="cd-sec-label">📷 Damage &amp; Inspection Photos</div>
+        <div id="cd-extra-grid" class="cd-extra-grid"></div>
+      </div>
+      <div id="cd-history-wrap" style="display:none">
+        <div class="cd-sec-label">🕒 Inspection History</div>
+        <div id="cd-history-list" class="cd-history"></div>
+      </div>
+      <div class="cd-actions">
+        <button class="btn btn-secondary" onclick="closeCardDetail()">✕ Close</button>
+        <button class="btn btn-primary" id="cd-inspect-btn">📋 Inspect Now</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ LIGHTBOX ═══════ -->
+<div class="lb-overlay" id="lb-overlay" style="display:none" onclick="closeLightbox()">
+  <span class="lb-close" onclick="closeLightbox()">×</span>
+  <img id="lb-img" src="" alt="">
+</div>
+
+<!-- ═══════ ADD SCULPTURE MODAL ═══════ -->
+<div class="overlay" id="modal" style="display:none" onclick="if(event.target===this)hideModal()">
+  <div class="modal" onclick="event.stopPropagation()">
+    <h2>Add New Sculpture</h2>
+    <div class="modal-fields">
+      <div><label class="field-label">Sculpture Title *</label>
+        <input type="text" id="new-name" placeholder="Title…" onkeydown="if(event.key==='Enter')submitModal()"></div>
+      <div><label class="field-label">Artist</label>
+        <input type="text" id="new-artist" placeholder="Artist name…"></div>
+      <div><label class="field-label">Location</label>
+        <input type="text" id="new-location" placeholder="Address or landmark…"></div>
+      <div><label class="field-label">Year / Acquired</label>
+        <input type="text" id="new-year" placeholder="e.g. 2018"></div>
+      <div><label class="field-label">Medium / Material</label>
+        <input type="text" id="new-medium" placeholder="e.g. Bronze, Steel, Stone…"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="hideModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="submitModal()">Add Sculpture</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ SMART MERGE MODAL ═══════ -->
+<div class="overlay" id="merge-modal" style="display:none" onclick="if(event.target===this)cancelMerge()">
+  <div class="modal" onclick="event.stopPropagation()" style="max-width:540px">
+    <h2>🔀 Smart Merge</h2>
+    <p style="font-size:13px;color:var(--slate2);margin-bottom:14px" id="merge-intro"></p>
+    <div id="merge-conflicts"></div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="cancelMerge()">Cancel</button>
+      <button class="btn btn-primary" onclick="completeMerge()">Complete Merge</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ HISTORY MODAL ═══════ -->
+<div class="overlay" id="history-modal" style="display:none" onclick="if(event.target===this)closeHistory()">
+  <div class="modal" onclick="event.stopPropagation()" style="max-width:520px">
+    <h2>🕒 Inspection History</h2>
+    <div id="history-content"></div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeHistory()">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ LEGEND POPUP ═══════ -->
+<div class="legend-popup" id="legend-popup" style="display:none">
+  <h4>Rating Guide</h4>
+  <div class="legend-row"><span class="legend-term">Good / None</span><span class="legend-def">No issues visible. No action needed.</span></div>
+  <div class="legend-row"><span class="legend-term">Fair / Minimal</span><span class="legend-def">Minor wear, cosmetic only. Monitor at next inspection.</span></div>
+  <div class="legend-row"><span class="legend-term">Poor / Substantial</span><span class="legend-def">Noticeable damage or growth. Schedule maintenance.</span></div>
+  <div class="legend-row"><span class="legend-term">Needs Immediate Attention</span><span class="legend-def">Safety or structural risk. Act within days.</span></div>
+</div>
+<div class="legend-popup" id="score-legend-popup" style="display:none">
+  <h4>Condition Score</h4>
+  <div class="legend-row"><span class="legend-term">1 — Excellent</span><span class="legend-def">Like new, no maintenance needed</span></div>
+  <div class="legend-row"><span class="legend-term">2 — Good</span><span class="legend-def">Minor wear only, routine care</span></div>
+  <div class="legend-row"><span class="legend-term">3 — Fair</span><span class="legend-def">Noticeable issues, plan repairs</span></div>
+  <div class="legend-row"><span class="legend-term">4 — Poor</span><span class="legend-def">Significant damage, prompt action</span></div>
+  <div class="legend-row"><span class="legend-term">5 — Critical</span><span class="legend-def">Safety/structural risk, act now</span></div>
+</div>
+
+<!-- ═══════ AUTO-SAVE TOAST ═══════ -->
+<div class="autosave-toast" id="autosave-toast">✓ Auto-saved</div>
+
+<script>
+'use strict';
+// ═══════════════════════════════════════════════
+//  CHECKLISTS
+// ═══════════════════════════════════════════════
+const CHECKLISTS={
+  surface:{label:"Surface Condition",icon:"🎨",items:[
+    {q:"Is rust or corrosion present?",type:"presence"},
+    {q:"Is the paint or coating intact?",type:"condition"},
+    {q:"Is peeling or discoloration present?",type:"presence"},
+    {q:"Is the sealant or protective coating sound?",type:"condition"},
+    {q:"Is water staining present?",type:"presence"},
+  ]},
+  cleanliness:{label:"Cleanliness & Biological Growth",icon:"🌿",items:[
+    {q:"Is moss or mold present?",type:"presence"},
+    {q:"Is there bird dropping accumulation?",type:"presence"},
+    {q:"Is algae or lichen growth present?",type:"presence"},
+    {q:"Is the surface acceptably clean?",type:"condition"},
+  ]},
+  vandalism:{label:"Vandalism & Damage",icon:"⚠️",items:[
+    {q:"Is graffiti present?",type:"presence"},
+    {q:"Are dents or impact damage visible?",type:"presence"},
+    {q:"Are any pieces missing or broken?",type:"presence"},
+    {q:"Are scratches or gouges present?",type:"presence"},
+  ]},
+  structural:{label:"Structural Integrity",icon:"🔩",items:[
+    {q:"Are the main bolts and fasteners secure?",type:"condition"},
+    {q:"Are welds and joints intact?",type:"condition"},
+    {q:"Is the foundation and base stable?",type:"condition"},
+    {q:"Are there cracks visible in the structure?",type:"presence"},
+    {q:"Do moving parts operate smoothly?",type:"condition"},
+  ]},
+  concrete:{label:"Concrete & Foundation",icon:"🏗️",items:[
+    {q:"Is the concrete surface intact?",type:"condition"},
+    {q:"Are there chips or breaks present?",type:"presence"},
+    {q:"Are cracks radiating from the base?",type:"presence"},
+    {q:"Is water pooling around the base?",type:"presence"},
+    {q:"Is the foundation level and settled?",type:"condition"},
+  ]},
+  signage:{label:"Signage",icon:"🪧",items:[
+    {q:"Does the artwork have a title plaque?",type:"yesno"},
+    {q:"Is the title plaque in good condition?",type:"condition"},
+    {q:"Does the artwork have an Otocast plaque?",type:"yesno"},
+    {q:"Is the Otocast plaque in good condition?",type:"condition"},
+  ]}
+};
+const TOTAL_ITEMS=Object.values(CHECKLISTS).reduce((a,c)=>a+c.items.length,0);
+const CONDITION_OPTS=["Good","Fair","Poor","Needs Immediate Attention"];
+const PRESENCE_OPTS =["None","Minimal","Substantial","Needs Immediate Attention"];
+const YESNO_OPTS    =["Yes","No"];
+function optsFor(t){return t==="presence"?PRESENCE_OPTS:t==="yesno"?YESNO_OPTS:CONDITION_OPTS}
+// rating severity for styling
+function ratingLevel(r,t){
+  if(!r) return 0;
+  if(r==="Needs Immediate Attention") return 4;
+  if(t==="yesno") return r==="Yes"?1:2;
+  const idx={Good:1,None:1,Fair:2,Minimal:2,Poor:3,Substantial:3}[r]||0;
+  return idx;
+}
+function rBtnClass(r,t){
+  const l=ratingLevel(r,t);
+  if(l===1) return "sel-good";
+  if(l===2) return "sel-warn";
+  if(l>=3&&l<4) return "sel-crit";
+  if(l===4) return "sel-urgent";
+  return "";
+}
+
+const STATUS_MAP={"None":"none","Routine Cleaning":"routine","Minor Repair":"minor","Major Repair":"major","Urgent":"urgent"};
+const BADGE_CLASS={none:"badge-none",routine:"badge-routine",minor:"badge-minor",major:"badge-major",urgent:"badge-urgent","":"badge-empty",decommissioned:"badge-decom"};
+const STRIPE_COLOR={none:"var(--green)",routine:"var(--accent)",minor:"var(--amber)",major:"var(--red)",urgent:"var(--red)","":""};
+
+function genId(){return '_'+Math.random().toString(36).substr(2,9)}
+function escHtml(s){return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
+function todayStr(){return new Date().toISOString().split("T")[0]}
+
+// ═══════════════════════════════════════════════
+//  SCULPTURE DATA
+// ═══════════════════════════════════════════════
+let sculptures=[
+  {id:genId(),name:"Ascending",artist:"Ruth Migdal",location:"Highway 12 at Pullman Park",image:null,lastInspection:null,medium:"",year:"",flag:"active"},
+  {id:genId(),name:"Ram",artist:"Don Babcock",location:"115 Lake Shore Drive",image:null,lastInspection:"Aug 20, 2025",medium:"",year:"",flag:"active"},
+  {id:genId(),name:"Victorious Peace Monument",artist:"Wm O'Donovan & Jonathan Hartley",location:"Washington Park",image:null,lastInspection:null,medium:"",year:"",flag:"active"},
+  {id:genId(),name:"Mechanical Structure with Galaxy",artist:"Joe Dahm",location:"Park Maintenance Building",image:null,lastInspection:null,medium:"",year:"",flag:"active"},
+  {id:genId(),name:"Dasein",artist:"John Sauve",location:"2510 E. Michigan Blvd",image:null,lastInspection:null,medium:"",year:"",flag:"active"},
+  {id:genId(),name:"Untitled",artist:"Tom Scarff",location:"Barker Mansion, NW corner of 7th and Washington",image:null,lastInspection:"Aug 20, 2025",medium:"",year:"",flag:"active"},
+  {id:genId(),name:"Crystal Effect III",artist:"Sunny Han",location:"SE corner of Ann & Ohio Streets",image:null,lastInspection:"Aug 20, 2025",medium:"",year:"",flag:"active"},
+  {id:genId(),name:"Naomi Anderson",artist:"Bernard Williams",location:"Westcott Park",image:null,lastInspection:null,medium:"",year:"",flag:"active"},
+  {id:genId(),name:"Bear Family",artist:"Jim Collins",location:"Washington Park - lot 2 entrance",image:null,lastInspection:null,medium:"",year:"",flag:"active"},
+  {id:genId(),name:"Sentinel",artist:"Ray Katz",location:"SW corner of 7th & Franklin",image:null,lastInspection:"Aug 20, 2025",medium:"",year:"",flag:"active"},
+  {id:genId(),name:"Galaxy",artist:"Ray Katz",location:"NW corner 8th & Michigan Blvd",image:null,lastInspection:null,medium:"",year:"",flag:"active"},
+  {id:genId(),name:"Connected",artist:"Maureen Gray",location:"SW corner of 4th & Franklin",image:null,lastInspection:"Aug 20, 2025",medium:"",year:"",flag:"active"},
+  {id:genId(),name:"Set Sail",artist:"Tim Adams",location:"823 Franklin Street",image:null,lastInspection:"Aug 20, 2025",medium:"",year:"",flag:"active"},
+  {id:genId(),name:"High and Dry",artist:"Kyle Fokken",location:"NW corner 7th & Franklin",image:null,lastInspection:"Aug 20, 2025",medium:"",year:"",flag:"active"},
+  {id:genId(),name:"Song of the Flying Dutchman",artist:"Kyle Fokken",location:"NW corner 6th & Franklin",image:null,lastInspection:"Aug 20, 2025",medium:"",year:"",flag:"active"},
+  {id:genId(),name:"Greater Than",artist:"Pam Reithmeier",location:"SE corner of Coolspring & Franklin",image:null,lastInspection:null,medium:"",year:"",flag:"active"},
+  {id:genId(),name:"Entangled",artist:"David Skora",location:"SE corner 5th & Franklin",image:null,lastInspection:"Aug 20, 2025",medium:"",year:"",flag:"active"},
+  {id:genId(),name:"Tree of Life",artist:"Hilde DeBruyne",location:"801 Liberty Trail at Memorial Park",image:null,lastInspection:null,medium:"",year:"",flag:"active"},
+  {id:genId(),name:"Flight",artist:"Hilde DeBruyne",location:"Grass triangle north of City Hall",image:null,lastInspection:null,medium:"",year:"",flag:"active"},
+  {id:genId(),name:"Chrysalis",artist:"Richard Kiebdaj",location:"Striebel Pond, SE corner of Hitchcock & Earl",image:null,lastInspection:null,medium:"",year:"",flag:"active"},
+  {id:genId(),name:"BedeckedBellow",artist:"Luke Achterberg",location:"MCFD Station 1, 1012 Ohio Street",image:null,lastInspection:"Aug 20, 2025",medium:"",year:"",flag:"active"},
+  {id:genId(),name:"World War I Doughboy Monument",artist:"Earnest Moore Viquesney",location:"Washington Park",image:null,lastInspection:null,medium:"",year:"",flag:"active"},
+  {id:genId(),name:"Firefighters & Police Officers Memorial Monument",artist:"Ron Pekar",location:"Millennium Plaza",image:null,lastInspection:null,medium:"",year:"",flag:"active"},
+  {id:genId(),name:"Duet",artist:"Doug Gruizenga",location:"Amphitheater in Washington Park",image:null,lastInspection:"Aug 20, 2025",medium:"",year:"",flag:"active"},
+  {id:genId(),name:"American Gothic",artist:"John Habela",location:"Michigan City Farm Market, 8th and Washington St.",image:null,lastInspection:"Aug 20, 2025",medium:"",year:"",flag:"active"},
+  {id:genId(),name:"Isle of Caprine",artist:"Richard Kiebdaj",location:"Michigan City Farm Market, 8th and Washington St.",image:null,lastInspection:"Aug 20, 2025",medium:"",year:"",flag:"active"},
+  {id:genId(),name:"Towering Winds",artist:"Michael Gruzca",location:"Michigan City Farm Market, 8th and Washington St.",image:null,lastInspection:"Aug 20, 2025",medium:"",year:"",flag:"active"},
+  {id:genId(),name:"Iron Hooks, Center Pins and Master Plates",artist:"Bernard Williams",location:"Wabash & Hwy 12",image:null,lastInspection:null,medium:"",year:"",flag:"active"},
+  {id:genId(),name:"Zeitgeist",artist:"Nathan Pierce",location:"Wabash & 10th Streets",image:null,lastInspection:"Aug 20, 2025",medium:"",year:"",flag:"active"},
+  {id:genId(),name:"Thin Series: Off the Diet",artist:"Ken Thompson",location:"Senior Center",image:null,lastInspection:null,medium:"",year:"",flag:"active"},
+  {id:genId(),name:"You Are Beautiful",artist:"Michael Hoffman",location:"Highway 12, You Are Beautiful Park",image:null,lastInspection:null,medium:"",year:"",flag:"active"},
+  {id:genId(),name:"The Protector",artist:"Brodin Studios",location:"Michigan City Police Station",image:null,lastInspection:null,medium:"",year:"",flag:"active"},
+  {id:genId(),name:"Owl & Pussycat",artist:"Richard Kiebdaj",location:"NW corner 9th & Franklin",image:null,lastInspection:"Aug 20, 2025",medium:"",year:"",flag:"active"},
+  {id:genId(),name:"Mikinaak",artist:"Jason Quigno",location:"City Hall",image:null,lastInspection:null,medium:"",year:"",flag:"active"},
+  {id:genId(),name:"Clairvoyance",artist:"Fisher Stolz",location:"SW corner of Franklin St. & 5th St.",image:null,lastInspection:"Aug 20, 2025",medium:"",year:"",flag:"active"},
+  {id:genId(),name:"Canada Park Mural",artist:"Flex Maldanado",location:"300 Center Street",image:null,lastInspection:null,medium:"",year:"",flag:"active"},
+  {id:genId(),name:"Whoa",artist:"Gary Kulak",location:"NW corner of 8th & Franklin Streets",image:null,lastInspection:"Aug 20, 2025",medium:"",year:"",flag:"active"},
+  {id:genId(),name:"Waterbird",artist:"Janet Austin",location:"Hansen Park, 100 E. Street",image:null,lastInspection:null,medium:"",year:"",flag:"active"},
+];
+let inspections={};    // id -> {inspectionDate, inspectorName, maintenance, conditionScore, recommendations, checklist, photos, weather, history:[]}
+let currentId=null;
+let manageMode=false;
+let editingNameId=null;
+let currentPhotos=[];
+let currentChecklist={};
+let currentFilter='all';
+let pendingMergeData=null;
+let autoSaveTimer=null;
+let rememberedInspector=localStorage.getItem('mac_inspector')||'';
+
+// ═══════════════════════════════════════════════
+//  PROGRESS BANNER
+// ═══════════════════════════════════════════════
+function updateProgressBanner(){
+  const total=sculptures.filter(s=>s.flag!=='decommissioned').length;
+  const inspected=sculptures.filter(s=>s.flag!=='decommissioned'&&inspections[s.id]).length;
+  const urgent=sculptures.filter(s=>inspections[s.id]?.maintenance==='Urgent').length;
+  const major=sculptures.filter(s=>inspections[s.id]?.maintenance==='Major Repair').length;
+  const pct=total?Math.round(inspected/total*100):0;
+  document.getElementById('progress-banner').innerHTML=`
+    <div class="prog-stat"><span class="num">${inspected}</span><span>of ${total} inspected</span></div>
+    <div class="prog-bar-wrap"><div class="prog-bar-fill" style="width:${pct}%"></div></div>
+    <div class="prog-stat"><span>${pct}% complete</span></div>
+    ${urgent?`<div class="prog-urgent">🚨 ${urgent} Urgent</div>`:''}
+    ${major?`<div class="prog-stat" style="color:var(--red)">⚠ ${major} Major</div>`:''}
+  `;
+}
+
+// ═══════════════════════════════════════════════
+//  IMAGE COMPRESSION  — max 400px on longest edge
+// ═══════════════════════════════════════════════
+function compressImage(file,maxW,maxH,quality){
+  // Override: always cap longest edge at 400px regardless of caller values
+  const MAX_EDGE=400;
+  return new Promise(resolve=>{
+    const reader=new FileReader();
+    reader.onload=ev=>{
+      const img=new Image();
+      img.onload=()=>{
+        let w=img.width,h=img.height;
+        // Scale so longest edge ≤ MAX_EDGE
+        if(w>h){
+          if(w>MAX_EDGE){h=Math.round(h*(MAX_EDGE/w));w=MAX_EDGE;}
+        } else {
+          if(h>MAX_EDGE){w=Math.round(w*(MAX_EDGE/h));h=MAX_EDGE;}
+        }
+        const canvas=document.createElement('canvas');
+        canvas.width=w;canvas.height=h;
+        canvas.getContext('2d').drawImage(img,0,0,w,h);
+        resolve(canvas.toDataURL('image/jpeg',0.80));
+      };
+      img.src=ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+// ═══════════════════════════════════════════════
+//  SORT / FILTER
+// ═══════════════════════════════════════════════
+let sortMode='title';  // default to A-Z Name
+function setFilter(f,btn){
+  currentFilter=f;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  renderCards();
+}
+function getSortedSculptures(){
+  let list=[...sculptures];
+  if(sortMode==='artist') list.sort((a,b)=>(a.artist||'').localeCompare(b.artist||'')||a.name.localeCompare(b.name));
+  else if(sortMode==='status'){
+    const ord={urgent:0,major:1,minor:2,routine:3,none:4,'':5};
+    list.sort((a,b)=>{
+      const ak=STATUS_MAP[inspections[a.id]?.maintenance||'']||'';
+      const bk=STATUS_MAP[inspections[b.id]?.maintenance||'']||'';
+      return (ord[ak]??5)-(ord[bk]??5)||a.name.localeCompare(b.name);
+    });
+  } else {
+    // default: title A-Z
+    list.sort((a,b)=>a.name.localeCompare(b.name));
+  }
+  // apply search filter
+  const q=(document.getElementById('search-input')?.value||'').toLowerCase();
+  if(q) list=list.filter(s=>
+    s.name.toLowerCase().includes(q)||
+    (s.artist||'').toLowerCase().includes(q)||
+    (s.location||'').toLowerCase().includes(q)
+  );
+  if(currentFilter==='uninspected') list=list.filter(s=>!inspections[s.id]);
+  if(currentFilter==='urgent') list=list.filter(s=>inspections[s.id]?.maintenance==='Urgent');
+  if(currentFilter==='major') list=list.filter(s=>inspections[s.id]?.maintenance==='Major Repair');
+  return list;
+}
+function setSort(mode){
+  sortMode=mode;
+  document.querySelectorAll('.sort-btn').forEach(b=>b.classList.remove('active'));
+  const el=document.getElementById('sort-'+mode);
+  if(el) el.classList.add('active');
+  renderCards();
+}
+
+// ═══════════════════════════════════════════════
+//  RENDER CARDS
+// ═══════════════════════════════════════════════
+function renderBadge(maint,flag){
+  if(flag==='decommissioned') return `<span class="badge badge-decom">Decommissioned</span>`;
+  const k=STATUS_MAP[maint]||'';
+  return `<span class="badge ${BADGE_CLASS[k]||'badge-empty'}">${maint||'Not inspected'}</span>`;
+}
+function renderCards(){
+  const grid=document.getElementById('card-grid');
+  grid.innerHTML='';
+  const list=getSortedSculptures();
+
+  list.forEach(s=>{
+    const r=inspections[s.id];
+    const maint=r?.maintenance||'';
+    const statusKey=s.flag==='decommissioned'?'decommissioned':(STATUS_MAP[maint]||'');
+    const card=document.createElement('div');
+    card.className='sculpture-card'+(manageMode?' manage-mode':'')+(statusKey?' status-'+statusKey:'');
+    card.dataset.id=s.id;
+    if(!manageMode) card.addEventListener('click',()=>openCardDetail(s.id));
+
+    if(manageMode){
+      const del=document.createElement('button');
+      del.className='del-btn';del.textContent='×';
+      del.addEventListener('click',e=>{e.stopPropagation();deleteSculpture(s.id)});
+      card.appendChild(del);
+    }
+    if(s.flag==='decommissioned'){
+      const db=document.createElement('div');db.className='decom-badge-card';db.textContent='Decommissioned';
+      card.appendChild(db);
+    }
+
+    // Image
+    if(s.image){
+      const wrap=document.createElement('div');wrap.className='card-img-wrap';
+      const img=document.createElement('img');img.src=s.image;img.alt=s.name;
+      wrap.appendChild(img);
+      const ov=document.createElement('div');ov.className='card-img-overlay';
+      const vb=document.createElement('button');vb.className='card-view-pill';vb.textContent='👁 View';
+      vb.addEventListener('click',e=>{e.stopPropagation();openCardDetail(s.id)});
+      ov.appendChild(vb);
+      const pc=r?.photos?.length?`<div class="card-photo-count">📷 ${r.photos.length}</div>`:'';
+      if(pc){const pcd=document.createElement('div');pcd.innerHTML=pc;ov.appendChild(pcd.firstChild)}
+      wrap.appendChild(ov);
+      card.appendChild(wrap);
+    } else {
+      // No image yet — clicking opens the detail modal where photo options live
+      const ph=document.createElement('div');ph.className='card-img-placeholder';
+      ph.innerHTML=`<span class="ph-icon">📷</span><p>Tap to view &amp; add photo</p>`;
+      card.appendChild(ph);
+    }
+
+    const body=document.createElement('div');body.className='card-body';
+    if(editingNameId===s.id){
+      body.innerHTML=`<div class="name-edit-row" onclick="event.stopPropagation()">
+        <input type="text" id="rename-input-${s.id}" value="${escHtml(s.name)}" onkeydown="handleRenameKey(event,'${s.id}')">
+        <button class="btn-save-name" onclick="commitRename('${s.id}')">Save</button></div>`;
+    } else {
+      body.innerHTML=`<div class="card-name"><span>${escHtml(s.name)}</span>
+        <button class="rename-btn" onclick="event.stopPropagation();startRename('${s.id}')">✏️</button></div>`;
+    }
+    const scoreDisp=r?.conditionScore?`<span style="font-size:10px;font-weight:700;color:var(--slate2)">Score: ${r.conditionScore}/5</span>`:'';
+    body.innerHTML+=`
+      <div class="card-artist">${escHtml(s.artist||'')}</div>
+      <div class="card-loc">📍 ${escHtml(s.location||'—')}</div>
+      <div class="card-footer">
+        ${renderBadge(maint,s.flag)}
+        ${scoreDisp}
+      </div>
+      <div class="card-date" style="margin-top:4px">Last inspected: <strong>${s.lastInspection||'Never'}</strong></div>`;
+    card.appendChild(body);
+    grid.appendChild(card);
+    if(editingNameId===s.id) setTimeout(()=>{const el=document.getElementById(`rename-input-${s.id}`);if(el)el.focus()},0);
+  });
+
+  const addCard=document.createElement('div');addCard.className='add-card';
+  addCard.innerHTML=`<div class="plus">＋</div><p>Add Sculpture</p>`;
+  addCard.addEventListener('click',showModal);
+  grid.appendChild(addCard);
+  updateProgressBanner();
+}
+
+// ═══════════════════════════════════════════════
+//  CARD DETAIL POPUP
+// ═══════════════════════════════════════════════
+function openCardDetail(id){
+  const s=sculptures.find(x=>x.id===id);
+  const r=inspections[id];
+  // hero
+  const heroEl=document.getElementById('cd-hero');heroEl.innerHTML='';
+  if(s.image){
+    const img=document.createElement('img');img.src=s.image;img.className='cd-hero-img';img.alt=s.name;
+    img.addEventListener('click',()=>openLightbox(s.image));heroEl.appendChild(img);
+  } else {
+    heroEl.innerHTML=`<div class="cd-hero-placeholder"><span class="ph-icon">🖼️</span><p>No photo yet</p></div>`;
+  }
+  const ctrl=document.createElement('div');ctrl.className='cd-hero-controls';
+  ctrl.innerHTML=`<label>📷 Take New<input type="file" accept="image/*" capture="environment"></label>
+    <label>🖼️ Change<input type="file" accept="image/*"></label>`;
+  ctrl.querySelectorAll('input').forEach(inp=>{inp.addEventListener('change',e=>{
+    if(e.target.files[0]) handleSculptureImage(id,e.target.files[0],()=>openCardDetail(id));
+  })});
+  heroEl.appendChild(ctrl);
+  // info
+  document.getElementById('cd-title').textContent=s.name;
+  document.getElementById('cd-artist').textContent=s.artist||'';
+  const date=r?.inspectionDate?new Date(r.inspectionDate+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}):'Never';
+  const scoreColors=['','#16a34a','#65a30d','#d97706','#dc2626','#b91c1c'];
+  const scoreLabels=['','Excellent','Good','Fair','Poor','Critical'];
+  document.getElementById('cd-score-wrap').innerHTML=r?.conditionScore
+    ?`<div class="cd-score-display"><span style="color:${scoreColors[r.conditionScore]};font-size:1.1rem">●</span> Condition: ${scoreLabels[r.conditionScore]} (${r.conditionScore}/5)</div>`:'';
+  document.getElementById('cd-meta').innerHTML=
+    `📍 ${escHtml(r?.location||s.location||'—')}<br>`+
+    `Last Inspection: <strong>${date}</strong><br>`+
+    `Inspector: ${escHtml(r?.inspectorName||'—')}<br>`+
+    (r?.weather?`Weather: ${escHtml(r.weather)}<br>`:'')+
+    `Status: ${renderBadge(r?.maintenance||'',s.flag)}`;
+  // extra photos
+  const extGrid=document.getElementById('cd-extra-grid');extGrid.innerHTML='';
+  if(r?.photos?.length){
+    r.photos.forEach(src=>{const img=document.createElement('img');img.src=src;img.addEventListener('click',()=>openLightbox(src));extGrid.appendChild(img)});
+  } else {extGrid.innerHTML=`<p class="cd-no-photos">No damage photos on file yet</p>`}
+  // history
+  const histWrap=document.getElementById('cd-history-wrap');
+  const histList=document.getElementById('cd-history-list');histList.innerHTML='';
+  const hist=r?.history||[];
+  if(hist.length){
+    histWrap.style.display='block';
+    hist.slice().reverse().forEach(h=>{
+      const d=h.inspectionDate?new Date(h.inspectionDate+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}):'?';
+      histList.innerHTML+=`<div class="cd-hist-item"><div class="hist-date">${d}</div>
+        <div class="hist-meta">Inspector: ${escHtml(h.inspectorName||'—')} &nbsp;|&nbsp; Status: ${escHtml(h.maintenance||'—')}${h.conditionScore?' &nbsp;|&nbsp; Score: '+h.conditionScore+'/5':''}</div></div>`;
+    });
+  } else {histWrap.style.display='none'}
+  document.getElementById('cd-inspect-btn').onclick=()=>{closeCardDetail();openInspection(id)};
+  document.getElementById('cd-overlay').style.display='flex';
+  document.body.style.overflow='hidden';
+}
+function closeCardDetail(){document.getElementById('cd-overlay').style.display='none';document.body.style.overflow=''}
+
+// ═══════════════════════════════════════════════
+//  LIGHTBOX
+// ═══════════════════════════════════════════════
+function openLightbox(src){document.getElementById('lb-img').src=src;document.getElementById('lb-overlay').style.display='flex'}
+function closeLightbox(){document.getElementById('lb-overlay').style.display='none';document.getElementById('lb-img').src=''}
+
+// ═══════════════════════════════════════════════
+//  INSPECTION SCREEN
+// ═══════════════════════════════════════════════
+function emptyChecklist(){
+  const cl={};
+  for(const [cat,{items}] of Object.entries(CHECKLISTS)) cl[cat]=items.map(()=>({rating:'',notes:''}));
+  return cl;
+}
+function renderInspectionImage(id){
+  const s=sculptures.find(x=>x.id===id);
+  const w=document.getElementById('insp-img-wrapper');w.innerHTML='';
+  if(s.image){
+    const img=document.createElement('img');img.src=s.image;img.className='insp-img-banner';img.alt=s.name;
+    img.addEventListener('click',()=>openLightbox(s.image));w.appendChild(img);
+    const ctrl=document.createElement('div');ctrl.className='insp-img-controls';
+    ctrl.innerHTML=`<label>📷 Take New<input type="file" accept="image/*" capture="environment"></label>
+      <label>🖼️ Change<input type="file" accept="image/*"></label>`;
+    ctrl.querySelectorAll('input').forEach(inp=>{inp.addEventListener('change',e=>{
+      if(e.target.files[0]) handleSculptureImage(id,e.target.files[0],()=>renderInspectionImage(id));
+    })});
+    w.appendChild(ctrl);
+  } else {
+    const lbl=document.createElement('label');lbl.className='insp-img-placeholder';
+    lbl.innerHTML=`<span class="ph-icon">📷</span><p>Tap to add sculpture photo</p>`;
+    const inp=document.createElement('input');inp.type='file';inp.accept='image/*';inp.setAttribute('capture','environment');
+    inp.addEventListener('change',e=>{if(e.target.files[0]) handleSculptureImage(id,e.target.files[0],()=>renderInspectionImage(id))});
+    lbl.appendChild(inp);w.appendChild(lbl);
+  }
+}
+
+function toggleSection(secId){
+  const hdr=document.querySelector(`#${secId} .sec-header`);
+  const body=document.getElementById(`body-${secId}`);
+  const tog=hdr.querySelector('.sec-toggle');
+  const isOpen=hdr.classList.contains('open');
+  if(isOpen){
+    body.style.maxHeight=body.scrollHeight+'px';
+    requestAnimationFrame(()=>{body.style.maxHeight='0';body.classList.add('collapsed')});
+    hdr.classList.remove('open');tog.classList.remove('open');
+  } else {
+    body.classList.remove('collapsed');body.style.maxHeight=body.scrollHeight+'px';
+    body.addEventListener('transitionend',()=>{body.style.maxHeight=''},{once:true});
+    hdr.classList.add('open');tog.classList.add('open');
+  }
+}
+
+function renderChecklistSections(){
+  const container=document.getElementById('checklist-sections');container.innerHTML='';
+  for(const [cat,{label,icon,items}] of Object.entries(CHECKLISTS)){
+    const secId=`sec-cl-${cat}`;
+    const sec=document.createElement('div');sec.className='section';sec.id=secId;
+    sec.innerHTML=`<div class="sec-header open" onclick="toggleSection('${secId}')">
+      <div class="sec-title">${icon} ${label}</div><span class="sec-toggle open">▾</span></div>
+      <div class="sec-body" id="body-${secId}">`;
+    const body=document.createElement('div');body.id=`body-${secId}`;body.className='sec-body';
+    items.forEach((item,i)=>{
+      const opts=optsFor(item.type);
+      const div=document.createElement('div');div.className='check-item';div.id=`ci-${cat}-${i}`;
+      const btns=opts.map(o=>`<button class="r-btn" data-cat="${cat}" data-i="${i}" data-val="${o}" onclick="setRating('${cat}',${i},'${o}')">${o}</button>`).join('');
+      div.innerHTML=`<div class="check-q">${item.q}</div>
+        <div class="rating-row">${btns}</div>
+        <button class="notes-toggle" onclick="toggleNoteField('${cat}',${i})">+ Add note</button>
+        <input type="text" class="notes-input" id="note-${cat}-${i}" placeholder="Add note…" data-cat="${cat}" data-i="${i}"
+          oninput="setNotes('${cat}',${i},this.value)" style="display:none">`;
+      body.appendChild(div);
+    });
+    sec.innerHTML=`<div class="sec-header open" onclick="toggleSection('${secId}')">
+      <div class="sec-title">${icon} ${label}</div><span class="sec-toggle open">▾</span></div>`;
+    sec.appendChild(body);
+    container.appendChild(sec);
+  }
+  // score row
+  const sr=document.getElementById('score-row');sr.innerHTML='';
+  [[1,'1 — Excellent'],[2,'2 — Good'],[3,'3 — Fair'],[4,'4 — Poor'],[5,'5 — Critical']].forEach(([v,lbl])=>{
+    const b=document.createElement('button');b.className='score-btn';b.textContent=lbl;b.dataset.val=v;
+    b.addEventListener('click',()=>setScore(v));sr.appendChild(b);
+  });
+  // maint row
+  const mr=document.getElementById('maint-row');mr.innerHTML='';
+  ['None','Routine Cleaning','Minor Repair','Major Repair','Urgent'].forEach(v=>{
+    const b=document.createElement('button');b.className='maint-btn';b.dataset.val=v;
+    b.textContent=v==='Urgent'?'🚨 Urgent':v;b.addEventListener('click',()=>setMaintenance(v));mr.appendChild(b);
+  });
+}
+
+function toggleNoteField(cat,i){
+  const inp=document.getElementById(`note-${cat}-${i}`);
+  const btn=inp.previousElementSibling;
+  const showing=inp.style.display!=='none';
+  inp.style.display=showing?'none':'block';
+  btn.textContent=showing?'+ Add note':'− Hide note';
+  if(!showing) inp.focus();
+}
+
+function updateChecklistProgress(){
+  let answered=0;
+  for(const [cat,{items}] of Object.entries(CHECKLISTS))
+    items.forEach((_,i)=>{if(currentChecklist[cat]?.[i]?.rating) answered++});
+  const pct=Math.round(answered/TOTAL_ITEMS*100);
+  document.getElementById('prog-fill').style.width=pct+'%';
+  document.getElementById('prog-count').textContent=`${answered}/${TOTAL_ITEMS}`;
+  document.getElementById('prog-label').textContent=pct===100?'✅ Checklist complete':'Checklist progress';
+}
+
+function refreshRatingButtons(){
+  document.querySelectorAll('.r-btn').forEach(btn=>{
+    const cur=currentChecklist[btn.dataset.cat]?.[parseInt(btn.dataset.i)]?.rating||'';
+    const sel=cur===btn.dataset.val;
+    btn.className='r-btn'+(sel?' '+rBtnClass(cur,null):'');
+    if(sel) updateCheckItem(btn.dataset.cat,parseInt(btn.dataset.i),cur);
+  });
+  updateChecklistProgress();
+}
+function updateCheckItem(cat,i,rating){
+  const el=document.getElementById(`ci-${cat}-${i}`);
+  if(!el) return;
+  el.className='check-item';
+  const l=ratingLevel(rating,null);
+  if(l===1) el.classList.add('answered');
+  else if(l===2) el.classList.add('answered-warn');
+  else if(l>=3) el.classList.add('answered-crit');
+}
+function refreshMaintButtons(){
+  const m=document.getElementById('f-recommendations').dataset.maint||'';
+  document.querySelectorAll('.maint-btn').forEach(btn=>{
+    btn.className='maint-btn';
+    if(btn.dataset.val===m){
+      const k=STATUS_MAP[m]||'';
+      if(k) btn.classList.add('sel-'+k);
+    }
+  });
+}
+function refreshScoreButtons(){
+  const sc=document.getElementById('f-recommendations').dataset.score||'';
+  document.querySelectorAll('.score-btn').forEach(btn=>{
+    btn.className='score-btn';
+    if(btn.dataset.val==sc) btn.classList.add('sel-'+sc);
+  });
+}
+function fillNotesFields(){
+  document.querySelectorAll('input[data-cat][data-i]').forEach(inp=>{
+    const v=currentChecklist[inp.dataset.cat]?.[parseInt(inp.dataset.i)]?.notes||'';
+    inp.value=v;
+    if(v){inp.style.display='block';const btn=inp.previousElementSibling;if(btn)btn.textContent='− Hide note'}
+  });
+}
+
+function renderPhotos(){
+  const grid=document.getElementById('photo-grid');grid.innerHTML='';
+  currentPhotos.forEach((src,i)=>{
+    const item=document.createElement('div');item.className='photo-item';
+    const img=document.createElement('img');img.src=src;img.title='Tap to view full size';
+    img.addEventListener('click',()=>openLightbox(src));
+    const rm=document.createElement('button');rm.className='photo-rm';rm.innerHTML='&times;';
+    rm.addEventListener('click',e=>{e.stopPropagation();removePhoto(i)});
+    const num=document.createElement('div');num.className='photo-num';num.textContent=`#${i+1}`;
+    item.appendChild(img);item.appendChild(rm);item.appendChild(num);
+    grid.appendChild(item);
+  });
+}
+
+function openInspection(id){
+  currentId=id;
+  const s=sculptures.find(x=>x.id===id);
+  const r=inspections[id];
+  currentChecklist=emptyChecklist();
+  if(r?.checklist){
+    for(const [cat,{items}] of Object.entries(CHECKLISTS))
+      items.forEach((_,i)=>{
+        currentChecklist[cat][i].rating=r.checklist[cat]?.[i]?.rating||'';
+        currentChecklist[cat][i].notes =r.checklist[cat]?.[i]?.notes||'';
+      });
+  }
+  currentPhotos=r?.photos?[...r.photos]:[];
+  document.getElementById('insp-title').textContent=s.name;
+  document.getElementById('insp-subtitle').textContent=(s.artist||'')+(s.location?' · '+s.location:'');
+  document.getElementById('f-name').value=s.name;
+  document.getElementById('f-artist').value=s.artist||'';
+  document.getElementById('f-date').value=r?.inspectionDate||todayStr();
+  document.getElementById('f-location').value=r?.location||s.location||'';
+  document.getElementById('f-inspector').value=r?.inspectorName||rememberedInspector||'';
+  document.getElementById('f-weather').value=r?.weather||'';
+  document.getElementById('f-status-flag').value=s.flag||'active';
+  document.getElementById('f-recommendations').value=r?.recommendations||'';
+  document.getElementById('f-recommendations').dataset.maint=r?.maintenance||'';
+  document.getElementById('f-recommendations').dataset.score=r?.conditionScore||'';
+  // inspector hint
+  updateInspectorHint();
+  renderInspectionImage(id);
+  renderChecklistSections();
+  refreshRatingButtons();refreshMaintButtons();refreshScoreButtons();fillNotesFields();renderPhotos();
+  document.getElementById('home-screen').style.display='none';
+  document.getElementById('home-toolbar').style.display='none';
+  document.getElementById('inspection-screen').style.display='block';
+  window.scrollTo(0,0);
+}
+function goHome(){
+  // warn if unsaved
+  currentId=null;
+  document.getElementById('inspection-screen').style.display='none';
+  document.getElementById('home-screen').style.display='block';
+  document.getElementById('home-toolbar').style.display='flex';
+  renderCards();
+}
+
+// ═══════════════════════════════════════════════
+//  FORM HANDLERS
+// ═══════════════════════════════════════════════
+function setRating(cat,i,val){
+  const cur=currentChecklist[cat][i].rating;
+  currentChecklist[cat][i].rating=cur===val?'':val;
+  refreshRatingButtons();autoSave();
+}
+function setNotes(cat,i,val){currentChecklist[cat][i].notes=val;autoSave()}
+function setMaintenance(val){
+  const el=document.getElementById('f-recommendations');
+  el.dataset.maint=el.dataset.maint===val?'':val;
+  refreshMaintButtons();autoSave();
+}
+function setScore(val){
+  const el=document.getElementById('f-recommendations');
+  el.dataset.score=el.dataset.score==val?'':val;
+  refreshScoreButtons();autoSave();
+}
+function handlePhotos(files){
+  Array.from(files).forEach(async file=>{
+    const compressed=await compressImage(file,1200,900,0.78);
+    currentPhotos.push(compressed);renderPhotos();autoSave();
+  });
+}
+function removePhoto(i){currentPhotos.splice(i,1);renderPhotos();autoSave()}
+function handleSculptureImage(id,file,cb){
+  compressImage(file,900,650,0.82).then(compressed=>{
+    sculptures=sculptures.map(s=>s.id===id?{...s,image:compressed}:s);
+    renderCards();if(cb)cb();
+  });
+}
+function onInspectorType(){
+  updateInspectorHint();autoSave();
+}
+function updateInspectorHint(){
+  const inp=document.getElementById('f-inspector');
+  const hint=document.getElementById('inspector-hint');
+  const val=inp.value.trim();
+  if(!val&&rememberedInspector){
+    hint.style.display='block';
+    hint.textContent=`Use remembered: ${rememberedInspector}`;
+    hint.onclick=()=>{inp.value=rememberedInspector;hint.style.display='none'};
+  } else {hint.style.display='none'}
+}
+
+// AUTO-SAVE
+function autoSave(){
+  clearTimeout(autoSaveTimer);
+  autoSaveTimer=setTimeout(()=>{
+    if(!currentId) return;
+    doSave(true);
+  },1500);
+}
+function showToast(msg){
+  const t=document.getElementById('autosave-toast');t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2200);
+}
+
+function doSave(silent=false){
+  const inspector=document.getElementById('f-inspector').value.trim();
+  if(inspector) {rememberedInspector=inspector;localStorage.setItem('mac_inspector',inspector)}
+  const prev=inspections[currentId];
+  // archive current as history entry before overwriting
+  let history=prev?.history||[];
+  if(prev && prev.inspectionDate){
+    const histEntry={inspectionDate:prev.inspectionDate,inspectorName:prev.inspectorName,maintenance:prev.maintenance,conditionScore:prev.conditionScore,recommendations:prev.recommendations,savedAt:prev.savedAt||new Date().toISOString()};
+    // only push if different date than last history entry
+    if(!history.length||history[history.length-1].inspectionDate!==prev.inspectionDate){
+      history=[...history,histEntry];
+    }
+  }
+  const data={
+    inspectionDate:document.getElementById('f-date').value,
+    location:document.getElementById('f-location').value,
+    inspectorName:inspector,
+    weather:document.getElementById('f-weather').value,
+    maintenance:document.getElementById('f-recommendations').dataset.maint||'',
+    conditionScore:parseInt(document.getElementById('f-recommendations').dataset.score)||null,
+    recommendations:document.getElementById('f-recommendations').value,
+    checklist:JSON.parse(JSON.stringify(currentChecklist)),
+    photos:[...currentPhotos],
+    savedAt:new Date().toISOString(),
+    history
+  };
+  inspections[currentId]=data;
+  const flag=document.getElementById('f-status-flag').value;
+  const dateStr=data.inspectionDate?new Date(data.inspectionDate+'T12:00:00').toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'}):null;
+  sculptures=sculptures.map(s=>s.id===currentId?{...s,lastInspection:dateStr,location:data.location,flag}:s);
+  if(!silent) showToast('✅ Saved!'); else showToast('✓ Auto-saved');
+}
+
+function saveInspection(){doSave(false)}
+function clearForm(){
+  if(!confirm('Clear form? Already saved data will not be affected.')) return;
+  currentChecklist=emptyChecklist();currentPhotos=[];
+  const s=sculptures.find(x=>x.id===currentId);
+  document.getElementById('f-date').value=todayStr();
+  document.getElementById('f-location').value=s?.location||'';
+  document.getElementById('f-inspector').value=rememberedInspector||'';
+  document.getElementById('f-recommendations').value='';
+  document.getElementById('f-recommendations').dataset.maint='';
+  document.getElementById('f-recommendations').dataset.score='';
+  document.getElementById('f-weather').value='';
+  refreshRatingButtons();refreshMaintButtons();refreshScoreButtons();fillNotesFields();renderPhotos();
+}
+function viewHistory(){
+  const r=inspections[currentId];
+  const hist=r?.history||[];
+  const modal=document.getElementById('history-modal');
+  const content=document.getElementById('history-content');
+  if(!hist.length){content.innerHTML=`<p style="color:var(--slate2);font-size:13px">No previous inspections on record. History is saved each time you save a new inspection date.</p>`}
+  else{
+    content.innerHTML=hist.slice().reverse().map(h=>{
+      const d=h.inspectionDate?new Date(h.inspectionDate+'T12:00:00').toLocaleDateString('en-US',{weekday:'short',year:'numeric',month:'long',day:'numeric'}):'Unknown date';
+      return `<div class="cd-hist-item" style="margin-bottom:8px">
+        <div class="hist-date">${d}</div>
+        <div class="hist-meta">Inspector: ${escHtml(h.inspectorName||'—')} &nbsp;|&nbsp;
+          Status: <b>${escHtml(h.maintenance||'—')}</b>
+          ${h.conditionScore?` &nbsp;|&nbsp; Score: <b>${h.conditionScore}/5</b>`:''}
+          ${h.recommendations?`<div style="margin-top:3px;color:var(--slate)">Notes: ${escHtml(h.recommendations.slice(0,120))}${h.recommendations.length>120?'…':''}</div>`:''}
+        </div></div>`;
+    }).join('')
+  }
+  modal.style.display='flex';
+}
+function closeHistory(){document.getElementById('history-modal').style.display='none'}
+
+// ═══════════════════════════════════════════════
+//  LEGEND POPUPS
+// ═══════════════════════════════════════════════
+function showLegend(btn){
+  const p=document.getElementById('legend-popup');
+  const r=btn.getBoundingClientRect();
+  p.style.top=(r.bottom+6)+'px';p.style.left=Math.min(r.left,window.innerWidth-270)+'px';
+  p.style.display=p.style.display==='none'?'block':'none';
+}
+function showScoreLegend(btn){
+  const p=document.getElementById('score-legend-popup');
+  const r=btn.getBoundingClientRect();
+  p.style.top=(r.bottom+6)+'px';p.style.left=Math.min(r.left,window.innerWidth-270)+'px';
+  p.style.display=p.style.display==='none'?'block':'none';
+}
+document.addEventListener('click',e=>{
+  if(!e.target.closest('.legend-btn')){
+    document.getElementById('legend-popup').style.display='none';
+    document.getElementById('score-legend-popup').style.display='none';
+  }
+});
+
+// ═══════════════════════════════════════════════
+//  MANAGE / RENAME
+// ═══════════════════════════════════════════════
+function toggleManage(){
+  manageMode=!manageMode;
+  const btn=document.getElementById('manage-btn');
+  btn.textContent=manageMode?'✅ Done':'✏️ Manage';
+  btn.classList.toggle('active',manageMode);
+  renderCards();
+}
+function deleteSculpture(id){
+  if(!confirm('Delete this sculpture and all its inspection data?')) return;
+  sculptures=sculptures.filter(s=>s.id!==id);delete inspections[id];renderCards();
+}
+function startRename(id){editingNameId=id;renderCards()}
+function handleRenameKey(e,id){if(e.key==='Enter')commitRename(id);if(e.key==='Escape'){editingNameId=null;renderCards()}}
+function commitRename(id){
+  const v=document.getElementById(`rename-input-${id}`)?.value?.trim();
+  if(v) sculptures=sculptures.map(s=>s.id===id?{...s,name:v}:s);
+  editingNameId=null;renderCards();
+}
+
+// ═══════════════════════════════════════════════
+//  ADD SCULPTURE MODAL
+// ═══════════════════════════════════════════════
+function showModal(){
+  ['new-name','new-artist','new-location','new-year','new-medium'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('modal').style.display='flex';
+  setTimeout(()=>document.getElementById('new-name').focus(),50);
+}
+function hideModal(){document.getElementById('modal').style.display='none'}
+function submitModal(){
+  const name=document.getElementById('new-name').value.trim();
+  if(!name){alert('Please enter a sculpture name.');return}
+  sculptures.push({id:genId(),name,
+    artist:document.getElementById('new-artist').value.trim(),
+    location:document.getElementById('new-location').value.trim(),
+    year:document.getElementById('new-year').value.trim(),
+    medium:document.getElementById('new-medium').value.trim(),
+    image:null,lastInspection:null,flag:'active'});
+  hideModal();renderCards();
+}
+
+// ═══════════════════════════════════════════════
+//  EXPORT WITH PHOTOS (JSON — full data including images)
+// ═══════════════════════════════════════════════
+function exportJSON(){
+  const data={exportDate:new Date().toISOString(),appVersion:'5.0',sculptures,inspections};
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download=`MAC_Sculptfusion_${new Date().toISOString().split('T')[0]}.json`;a.click();URL.revokeObjectURL(a.href);
+}
+
+// ═══════════════════════════════════════════════
+//  EXPORT CSV
+// ═══════════════════════════════════════════════
+function exportCSV(){
+  const esc=v=>`"${String(v||'').replace(/"/g,'""')}"`;
+  const clHeaders=[];
+  for(const [,{label,items}] of Object.entries(CHECKLISTS)) items.forEach(it=>clHeaders.push(`${label}: ${it.q}`));
+  const headers=['Sculpture','Artist','Medium','Year','Location','Inspection Date','Inspector','Weather','Condition Score','Status','Actions/Notes',...clHeaders,'Photo Count'];
+  const rows=sculptures.map(s=>{
+    const r=inspections[s.id];
+    const date=r?.inspectionDate?new Date(r.inspectionDate+'T12:00:00').toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'}):'';
+    const clVals=[];
+    for(const [cat,{items}] of Object.entries(CHECKLISTS))
+      items.forEach((_,i)=>{const v=r?.checklist?.[cat]?.[i];clVals.push(v?.rating?(v.notes?`${v.rating} – ${v.notes}`:v.rating):'')});
+    return [s.name,s.artist||'',s.medium||'',s.year||'',r?.location||s.location||'',date,
+      r?.inspectorName||'',r?.weather||'',r?.conditionScore||'',r?.maintenance||'',r?.recommendations||'',...clVals,r?.photos?.length||0];
+  });
+  const csv=[headers.map(esc).join(','),...rows.map(r=>r.map(esc).join(','))].join('\r\n');
+  const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download=`MAC_Sculptfusion_${new Date().toISOString().split('T')[0]}.csv`;a.click();URL.revokeObjectURL(a.href);
+}
+
+// ═══════════════════════════════════════════════
+//  IMPORT JSON  → SMART MERGE
+// ═══════════════════════════════════════════════
+function importJSON(input){
+  const file=input.files[0];if(!file) return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const data=JSON.parse(e.target.result);
+      if(!data.sculptures||!Array.isArray(data.sculptures)){alert('❌ Invalid MAC Sculptfusion file.');return}
+      pendingMergeData=data;
+      showMergeModal(data);
+    }catch{alert('❌ Could not read file. Make sure it is a valid MAC Sculptfusion JSON export.')}
+  };
+  reader.readAsText(file);input.value='';
+}
+
+function showMergeModal(data){
+  // Find sculptures where both sides have inspection data with different dates
+  const conflicts=[];
+  const newOnly=[];
+  data.sculptures.forEach(imp=>{
+    const key=`${imp.name}||${imp.artist||''}`;
+    const local=sculptures.find(s=>`${s.name}||${s.artist||''}`===key);
+    const impInsp=data.inspections?.[imp.id];
+    if(local){
+      const localInsp=inspections[local.id];
+      if(impInsp&&localInsp&&impInsp.inspectionDate!==localInsp.inspectionDate){
+        conflicts.push({local,localInsp,imp,impInsp,key});
+      }
+    } else if(impInsp){
+      newOnly.push(imp);
+    }
+  });
+  const totalNew=data.sculptures.filter(imp=>{
+    const key=`${imp.name}||${imp.artist||''}`;
+    return !sculptures.find(s=>`${s.name}||${s.artist||''}`===key);
+  }).length;
+  document.getElementById('merge-intro').innerHTML=
+    `Importing <b>${data.sculptures.length} sculptures</b> from ${data.exportDate?new Date(data.exportDate).toLocaleDateString():'file'}.
+    <br><b>${totalNew}</b> new sculptures, <b>${conflicts.length}</b> inspection conflicts to resolve.`;
+  const conflDiv=document.getElementById('merge-conflicts');conflDiv.innerHTML='';
+  if(!conflicts.length){
+    conflDiv.innerHTML=`<div style="background:var(--green-bg);border:1px solid var(--green);border-radius:8px;padding:12px;font-size:13px;color:var(--green);font-weight:600">✅ No conflicts — all data can be merged automatically.</div>`;
+  } else {
+    conflicts.forEach((c,idx)=>{
+      const ld=c.localInsp.inspectionDate?new Date(c.localInsp.inspectionDate+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}):'?';
+      const id2=c.impInsp.inspectionDate?new Date(c.impInsp.inspectionDate+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}):'?';
+      conflDiv.innerHTML+=`<div class="merge-item">
+        <h4>${escHtml(c.local.name)}</h4>
+        <div class="merge-detail">Two inspections found with different dates.</div>
+        <div class="merge-choice">
+          <input type="radio" class="merge-radio" name="merge-${idx}" id="mk-keep-${idx}" value="keep" checked>
+          <label class="merge-label" for="mk-keep-${idx}">Keep mine (${ld}, ${escHtml(c.localInsp.inspectorName||'?')})</label>
+          <input type="radio" class="merge-radio" name="merge-${idx}" id="mk-use-${idx}" value="use">
+          <label class="merge-label" for="mk-use-${idx}">Use theirs (${id2}, ${escHtml(c.impInsp.inspectorName||'?')})</label>
+          <input type="radio" class="merge-radio" name="merge-${idx}" id="mk-both-${idx}" value="both">
+          <label class="merge-label" for="mk-both-${idx}">Keep both (archive older)</label>
+        </div>
+        <input type="hidden" class="conflict-local-id" value="${c.local.id}">
+        <input type="hidden" class="conflict-imp-id" value="${c.imp.id}">
+      </div>`;
+    });
+  }
+  document.getElementById('merge-modal').style.display='flex';
+}
+function cancelMerge(){pendingMergeData=null;document.getElementById('merge-modal').style.display='none'}
+function completeMerge(){
+  const data=pendingMergeData;if(!data) return;
+  const conflictItems=document.querySelectorAll('.merge-item');
+  const decisions={};
+  conflictItems.forEach(item=>{
+    const localId=item.querySelector('.conflict-local-id').value;
+    const impId=item.querySelector('.conflict-imp-id').value;
+    const choice=item.querySelector('.merge-radio:checked')?.value||'keep';
+    decisions[`${localId}||${impId}`]=choice;
+  });
+  const log=[];
+  const idMap={};
+  // Add new sculptures — also restore images from imported file
+  data.sculptures.forEach(imp=>{
+    const key=`${imp.name}||${imp.artist||''}`;
+    const local=sculptures.find(s=>`${s.name}||${s.artist||''}`===key);
+    if(!local){
+      const newId=genId();idMap[imp.id]=newId;
+      sculptures.push({...imp,id:newId,flag:imp.flag||'active',medium:imp.medium||'',year:imp.year||''});
+      log.push(`➕ Added new sculpture: <b>${escHtml(imp.name)}</b>`);
+    } else {
+      idMap[imp.id]=local.id;
+      // Restore image if local is missing one but imported has it
+      if(!local.image&&imp.image){
+        sculptures=sculptures.map(s=>s.id===local.id?{...s,image:imp.image}:s);
+        log.push(`🖼️ Restored photo for: <b>${escHtml(imp.name)}</b>`);
+      }
+    }
+  });
+  // Merge inspections
+  data.sculptures.forEach(imp=>{
+    const localId=idMap[imp.id];if(!localId) return;
+    const impInsp=data.inspections?.[imp.id];if(!impInsp) return;
+    const localInsp=inspections[localId];
+    const dKey=`${localId}||${imp.id}`;
+    const decision=decisions[dKey]||'keep';
+    if(!localInsp){
+      // No local inspection — just take theirs, merging photos
+      inspections[localId]={...impInsp,history:impInsp.history||[]};
+      log.push(`📋 Added inspection for: <b>${escHtml(imp.name)}</b> (${impInsp.inspectorName||'?'}, ${impInsp.inspectionDate||'?'})`);
+    } else if(decision==='use'){
+      const merged={...impInsp,history:impInsp.history||[]};
+      // Merge photos
+      const allPhotos=[...new Set([...(impInsp.photos||[]),...(localInsp.photos||[])])];
+      merged.photos=allPhotos;
+      inspections[localId]=merged;
+      log.push(`🔄 Replaced inspection for: <b>${escHtml(imp.name)}</b> with imported version`);
+    } else if(decision==='both'){
+      // Archive the older as history, keep the newer as current
+      const localDate=new Date(localInsp.inspectionDate||'2000-01-01');
+      const impDate=new Date(impInsp.inspectionDate||'2000-01-01');
+      const newer=localDate>=impDate?localInsp:impInsp;
+      const older=localDate>=impDate?impInsp:localInsp;
+      const hist=[...(localInsp.history||[]),...(impInsp.history||[]),{inspectionDate:older.inspectionDate,inspectorName:older.inspectorName,maintenance:older.maintenance,conditionScore:older.conditionScore,recommendations:older.recommendations}];
+      const allPhotos=[...new Set([...(localInsp.photos||[]),...(impInsp.photos||[])])];
+      inspections[localId]={...newer,photos:allPhotos,history:hist};
+      log.push(`📁 Merged both inspections for: <b>${escHtml(imp.name)}</b> — history preserved`);
+    } else {
+      // keep — but still merge photos from theirs
+      const allPhotos=[...new Set([...(localInsp.photos||[]),...(impInsp.photos||[])])];
+      inspections[localId]={...localInsp,photos:allPhotos};
+      log.push(`✔ Kept existing inspection for: <b>${escHtml(imp.name)}</b>`);
+    }
+    // update lastInspection on sculpture
+    const r=inspections[localId];
+    if(r?.inspectionDate){
+      const ds=new Date(r.inspectionDate+'T12:00:00').toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'});
+      sculptures=sculptures.map(s=>s.id===localId?{...s,lastInspection:ds}:s);
+    }
+  });
+  document.getElementById('merge-modal').style.display='none';
+  pendingMergeData=null;
+  renderCards();
+  // Show merge log
+  const logHtml=log.map(l=>`<div class="merge-log-item">${l}</div>`).join('');
+  const logModal=document.createElement('div');logModal.className='overlay';logModal.style.zIndex='600';
+  logModal.innerHTML=`<div class="modal" style="max-width:500px" onclick="event.stopPropagation()">
+    <h2>✅ Merge Complete</h2>
+    <p style="font-size:13px;color:var(--slate2);margin-bottom:10px">${log.length} changes applied:</p>
+    <div class="merge-log-wrap">${logHtml}</div>
+    <div class="modal-actions"><button class="btn btn-primary" onclick="this.closest('.overlay').remove()">Done</button></div>
+  </div>`;
+  document.body.appendChild(logModal);
+}
+
+// ═══════════════════════════════════════════════
+//  PRINT / PDF  — compact, paper-saving
+// ═══════════════════════════════════════════════
+function printBadge(maint){
+  const C={none:{bg:'#f0fdf4',fg:'#16a34a'},routine:{bg:'#eff6ff',fg:'#2563eb'},minor:{bg:'#fffbeb',fg:'#d97706'},major:{bg:'#fef2f2',fg:'#dc2626'},urgent:{bg:'#dc2626',fg:'white'},'0':{bg:'#f3f4f6',fg:'#6b7280'}};
+  const c=C[STATUS_MAP[maint]||'0']||C['0'];
+  return `<span class="print-score-badge" style="background:${c.bg};color:${c.fg}">${maint||'Not assessed'}</span>`;
+}
+function ratingColor(r,t){
+  if(!r) return '#bbb';
+  if(t==='yesno') return r==='Yes'?'#16a34a':'#999';
+  if(r==='Needs Immediate Attention'||r==='Poor'||r==='Substantial') return '#dc2626';
+  if(r==='Fair'||r==='Minimal') return '#d97706';
+  return '#16a34a';
+}
+
+function buildPrintHTML(){
+  const inspectedOnly=document.getElementById('opt-inspected-only')?.checked!==false;
+  const issuesOnly=document.getElementById('opt-issues-only')?.checked===true;
+  const skipGood=document.getElementById('opt-skip-good')?.checked!==false;
+  const noPhotos=document.getElementById('opt-no-photos')?.checked===true;
+  const scoreLabels=['','Excellent','Good','Fair','Poor','Critical'];
+  const now=new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+  let list=sculptures;
+  if(inspectedOnly) list=list.filter(s=>inspections[s.id]);
+  if(issuesOnly) list=list.filter(s=>['Major Repair','Urgent'].includes(inspections[s.id]?.maintenance));
+
+  // ── SUMMARY PAGE (prints landscape via @page:first) ──
+  let html=`<div class="print-summary-section">
+  <div class="print-hdr"><div>
+    <h1>🎨 MAC Sculptfusion — Maintenance Report</h1>
+    <p>Generated: ${now} &nbsp;|&nbsp; ${list.length} of ${sculptures.length} sculptures shown</p></div>
+    <div style="font-size:10px;color:#666;text-align:right">
+      ${inspectedOnly?'Inspected only ·':''} ${skipGood?'Issues only in checklist ·':''} ${issuesOnly?'Major/Urgent only ·':''}
+    </div></div>
+  <div class="print-section-title">Summary</div>
+  <table class="print-summary"><thead><tr>
+    <th>Sculpture</th><th>Artist</th><th>Date</th><th>Location</th><th>Inspector</th><th>Score</th><th>Status</th><th>Notes</th>
+  </tr></thead><tbody>`;
+  list.forEach(s=>{
+    const r=inspections[s.id];
+    const date=r?.inspectionDate?new Date(r.inspectionDate+'T12:00:00').toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'}):'—';
+    const rec=(r?.recommendations||'—').slice(0,60)+((r?.recommendations||'').length>60?'…':'');
+    html+=`<tr><td><b>${escHtml(s.name)}</b></td><td style="font-style:italic">${escHtml(s.artist||'—')}</td>
+      <td>${date}</td><td style="font-size:8.5px">${escHtml(r?.location||s.location||'—')}</td>
+      <td>${escHtml(r?.inspectorName||'—')}</td>
+      <td>${r?.conditionScore?scoreLabels[r.conditionScore]+' ('+r.conditionScore+')':'—'}</td>
+      <td>${printBadge(r?.maintenance||'')}</td>
+      <td style="font-size:8.5px">${escHtml(rec)}</td></tr>`;
+  });
+  html+=`</tbody></table></div>`; // end summary section
+
+  // ── DETAIL PAGES (portrait) ──
+  html+=`<div class="print-section-title">Detailed Reports</div><div class="print-detail-grid">`;
+  list.forEach((s,idx)=>{
+    const r=inspections[s.id];
+    const isHighPriority=['Major Repair','Urgent'].includes(r?.maintenance);
+    html+=`<div class="print-detail${isHighPriority?' full-width':''}">
+      <div class="print-detail-hdr"><strong>${escHtml(s.name)}</strong>`;
+    if(r){
+      const date=r.inspectionDate?new Date(r.inspectionDate+'T12:00:00').toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'}):'—';
+      html+=`<div class="meta">${escHtml(s.artist||'')} | ${date}<br>
+        ${escHtml(r.location||s.location||'—')}<br>
+        Inspector: ${escHtml(r.inspectorName||'—')} | ${printBadge(r.maintenance||'')}
+        ${r.conditionScore?` | Score: ${r.conditionScore}/5`:''}</div>`;
+    } else {html+=`<div class="meta" style="color:#999">No inspection</div>`}
+    html+=`</div>`;
+    if(s.image&&!noPhotos) html+=`<img src="${s.image}" alt="${escHtml(s.name)}" class="print-hero">`;
+    if(r){
+      html+=`<table class="print-table"><thead><tr><th>Question</th><th>Response</th><th>Notes</th></tr></thead><tbody>`;
+      let hasRows=false;
+      for(const [cat,{label,items}] of Object.entries(CHECKLISTS)){
+        const catRows=[];
+        items.forEach((item,i)=>{
+          const sv=r.checklist?.[cat]?.[i]||{};
+          if(skipGood&&(sv.rating==='Good'||sv.rating==='None'||!sv.rating)) return;
+          catRows.push(`<tr><td>${escHtml(item.q)}</td>
+            <td style="font-weight:700;color:${ratingColor(sv.rating,item.type)}">${escHtml(sv.rating||'—')}</td>
+            <td style="font-size:7.5px;color:#555">${escHtml(sv.notes||'')}</td></tr>`);
+        });
+        if(catRows.length){
+          html+=`<tr class="print-cat-row"><td colspan="3">${label}</td></tr>`+catRows.join('');
+          hasRows=true;
+        }
+      }
+      if(!hasRows) html+=`<tr><td colspan="3" style="color:#999;font-style:italic;padding:4px 6px">All items rated Good/None</td></tr>`;
+      html+=`</tbody></table>`;
+      if(r.recommendations) html+=`<div class="print-recs"><b>Actions:</b> ${escHtml(r.recommendations)}</div>`;
+      if(!noPhotos&&r.photos?.length) html+=`<div class="print-photos">${r.photos.map(p=>`<img src="${p}" alt="">`).join('')}</div>`;
+    }
+    html+=`</div>`;
+  });
+  html+=`</div>`;
+  html+=`<div class="print-footer">MAC Sculptfusion Public Art Inspection System · Michigan City, IN | ${now}</div>`;
+  return html;
+}
+
+function buildAndShowPrint(){document.getElementById('print-content').innerHTML=buildPrintHTML()}
+
+function showPrintView(){
+  buildAndShowPrint();
+  document.getElementById('app').style.display='none';
+  document.getElementById('print-view').style.display='block';
+  window.scrollTo(0,0);
+}
+function hidePrintView(){
+  document.getElementById('print-view').style.display='none';
+  document.getElementById('app').style.display='flex';
+}
+
+// ═══════════════════════════════════════════════
+//  DOWNLOAD PDF  — triggers browser Save as PDF dialog
+// ═══════════════════════════════════════════════
+function downloadPDF(){
+  // Build the print content if not already shown
+  const pv=document.getElementById('print-view');
+  const wasHidden=pv.style.display==='none'||!pv.style.display;
+  if(wasHidden){
+    buildAndShowPrint();
+    document.getElementById('app').style.display='none';
+    pv.style.display='block';
+  }
+  // Give browser a moment to render then open print dialog
+  // which lets user "Save as PDF" — the @page CSS rules drive orientation
+  setTimeout(()=>{
+    window.print();
+    // After printing, if we auto-showed the view, leave it open
+    // so user can see it and hit Back when done
+  },150);
+}
+
+// ═══════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════
+// Set default sort button active
+document.addEventListener('DOMContentLoaded',()=>{
+  const btn=document.getElementById('sort-title');
+  if(btn) btn.classList.add('active');
+});
+renderCards();
+</script>
+</body>
+</html>
